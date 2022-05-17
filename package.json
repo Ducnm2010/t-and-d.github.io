@@ -1,0 +1,39 @@
+{
+  "name": "app-auction",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@ant-design/icons-vue": "^6.1.0",
+    "ant-design-vue": "^3.2.0",
+    "browserify-zlib": "^0.2.0",
+    "dayjs": "^1.11.2",
+    "events": "^3.3.0",
+    "moment": "^2.29.3",
+    "pinia": "^2.0.13",
+    "process": "^0.11.10",
+    "sass": "^1.51.0",
+    "stream-browserify": "^3.0.0",
+    "unplugin-vue-components": "^0.19.3",
+    "util": "^0.12.4",
+    "v-wave": "^1.4.0",
+    "vue": "^3.2.25",
+    "vue-router": "^4.0.14",
+    "web3": "^1.7.3"
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.5",
+    "@nomiclabs/hardhat-waffle": "^2.0.3",
+    "@vitejs/plugin-vue": "^2.3.1",
+    "chai": "^4.3.6",
+    "ethereum-waffle": "^3.4.4",
+    "ethers": "^5.6.5",
+    "hardhat": "^2.9.3",
+    "less": "^4.1.2",
+    "vite": "^2.9.5"
+  }
+}

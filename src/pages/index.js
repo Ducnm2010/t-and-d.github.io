@@ -1,0 +1,7 @@
+export { default as About } from './About.vue'
+export { default as Login } from './Login.vue'
+export { default as Bidding } from './Bidding.vue'
+export { default as SessionCreate } from './SessionCreate.vue'
+export { default as SessionDetail } from './SessionDetail.vue'
+export { default as SessionResult } from './SessionResult.vue'
+export { default as NotFound } from './NotFound.vue'
