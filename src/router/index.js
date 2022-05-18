@@ -4,7 +4,7 @@ import * as templates from '../templates/index'
 
 const routes = [
     {
-        path: '/',
+        path: '/t-and-d.github.io/',
         component: templates.MainTemplate,
         children: [
             {
