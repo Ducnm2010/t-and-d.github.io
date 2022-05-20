@@ -4,7 +4,7 @@ import * as templates from '../templates/index'
 
 const routes = [
     {
-        path: '/t-and-d.github.io/',
+        path: '/',
         component: templates.MainTemplate,
         children: [
             {
@@ -32,11 +32,6 @@ const routes = [
                 name: 'session-detail',
                 component: pages.SessionDetail
             },
-            // {
-            //     path: 'session/result/:id',
-            //     name: 'session-result',
-            //     component: pages.SessionResult
-            // },
             {
                 path: 'not-found',
                 name: 'not-found',
@@ -51,7 +46,7 @@ const routes = [
 ]
 
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHistory('/t-and-d.github.io/'),
     routes
 })
 
