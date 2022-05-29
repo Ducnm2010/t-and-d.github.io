@@ -1,13 +1,13 @@
 <template>
   <router-view />
   <full-screen-loading v-if="isLoading" />
-  <a-modal
-    v-model:visible="showSuggestion"
-    title="Get your wallet"
-    @ok="redirectToMetaMaskExtension"
-    @cancel="setShowSuggestion(false)"
-  >
-    You need to install MetaMask first
+  <a-modal v-model:visible="showSuggestion" title="Get your wallet" @ok="redirectToMetaMaskExtension"
+    @cancel="setShowSuggestion(false)">
+    You need to install MetaMask first in order to join
+  </a-modal>
+  <a-modal v-model:visible="showGuidance" title="Wallet connected fail" @ok="contractStore.showGuidance = false"
+    @cancel="contractStore.showGuidance = false">
+    The request has been sent to you. Please check your meta mask to login.
   </a-modal>
 </template>
 
@@ -17,6 +17,8 @@ import { useStateUI } from './store/useStateUI'
 import { useContracts } from './store/useContracts'
 import { useState } from './hooks'
 import FullScreenLoading from './components/FullScreenLoading.vue'
+
+console.log(process.env.NODE_ENV);
 
 const { screenLoading, setScreenLoading } = useStateUI()
 const isLoading = computed(() => screenLoading.value)
@@ -34,6 +36,13 @@ const redirectToMetaMaskExtension = () => {
 }
 
 const contractStore = useContracts()
+const showGuidance = computed(() => contractStore.showGuidance)
+
+const { ethereum } = window;
+ethereum.on('accountsChanged', (accounts) => {
+  window.location.reload()
+});
+
 onMounted(() => {
   contractStore.getEthereumContract()
 })
@@ -41,9 +50,18 @@ onMounted(() => {
 
 <style lang="scss">
 /* global */
+
+// variable
+:root {
+  --text-primary: #111827;
+  --text-secondary: #757575;
+  ;
+}
+
+
 html,
 body {
-  font-family: 'Raleway', sans-serif !important;
+  font-family: "Inter", sans-serif !important;
 
   * {
     font-variant-numeric: lining-nums;
@@ -59,17 +77,48 @@ body {
 #app {
   display: flex;
   flex: 1;
+
   .page {
     min-height: 100vh;
   }
-}
 
-button.ant-btn:not(.ant-btn-primary) {
-  &:hover {
-    color: var(--antd-wave-shadow-color);
-    span {
-      text-shadow: 0 0 0 black;
+
+  // overwrite ant styles
+  .ant-layout-header .ant-menu,
+  .ant-menu-horizontal>.ant-menu-item::after,
+  .ant-menu-horizontal>.ant-menu-submenu::after,
+  .ant-menu-horizontal:not(.ant-menu-dark)>.ant-menu-item:hover::after,
+  .ant-menu-horizontal:not(.ant-menu-dark)>.ant-menu-submenu:hover::after,
+  .ant-menu-horizontal:not(.ant-menu-dark)>.ant-menu-item-active::after,
+  .ant-menu-horizontal:not(.ant-menu-dark)>.ant-menu-submenu-active::after,
+  .ant-menu-horizontal:not(.ant-menu-dark)>.ant-menu-item-open::after,
+  .ant-menu-horizontal:not(.ant-menu-dark)>.ant-menu-submenu-open::after,
+  .ant-menu-horizontal:not(.ant-menu-dark)>.ant-menu-item-selected::after,
+  .ant-menu-horizontal:not(.ant-menu-dark)>.ant-menu-submenu-selected::after {
+    border-bottom: none;
+  }
+
+  .ant-typography {
+    &h1 {}
+
+    &h2 {
+      font-size: 30px;
     }
+
+    &div {
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 24px;
+    }
+  }
+
+  .ant-btn {
+    border-radius: 12px !important;
+    padding: 12px 24px;
+    height: unset;
+    width: unset;
+    font-size: 1rem;
+    font-weight: 600;
   }
 }
 
@@ -85,13 +134,5 @@ input:-webkit-autofill:active {
   width: 5px;
   border-radius: 10px;
   background-color: #ccc;
-}
-
-button.ant-btn {
-  border-radius: 3px;
-
-  &.drop-shadow {
-    box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.3);
-  }
 }
 </style>

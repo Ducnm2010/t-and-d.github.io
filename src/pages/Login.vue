@@ -5,7 +5,6 @@
                 <a-row>
                     <a-col :span="12">
                         <div class="cover">
-                            <img src="../assets/cover-2.webp" alt="cover">
                         </div>
                     </a-col>
                     <a-col :span="12">

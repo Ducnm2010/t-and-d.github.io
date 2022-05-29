@@ -1,9 +1,6 @@
 <template>
     <div class="page session-detail">
-        <a-typography-title
-            align="center"
-            style="padding-top: 3rem; color: #fff"
-        >
+        <a-typography-title align="center" style="padding-top: 3rem; color: #fff">
             The session will end in:
         </a-typography-title>
 
@@ -27,28 +24,24 @@
             </div>
         </div>
 
-        <a-typography-title
-            :level="4"
-            class="current-highest-price"
-        >
+        <div class="current-highest">
+            <a-typography-paragraph>
+                <label>Current Highest Price</label>
+                <span>{{ currentHighestPrice }}</span>
+            </a-typography-paragraph>
+        </div>
+
+        <a-typography-title :level="4" class="current-highest-price">
             {{ startingPrice }}
             <span class="currency" style="font-size: 2rem">ETH</span>
         </a-typography-title>
 
-        <a-form
-            class="bidding-form"
-            :model="formState"
-            layout="vertical"
-            align="center"
-        >
+        <a-form class="bidding-form" :model="formState" layout="vertical" align="center">
             <a-form-item name="bidPrice">
                 <a-input v-model:value="formState.bidPrice" />
             </a-form-item>
             <a-form-item>
-                <a-button
-                    @click="handleSubmit"
-                    type="primary"
-                >Bid</a-button>
+                <a-button @click="handleSubmit" type="primary">Bid</a-button>
             </a-form-item>
         </a-form>
 
@@ -83,6 +76,8 @@ const formattedTimeLeft = computed(() =>
     formatTimestampIntoUnits(timeLeft.value * 1000) /** epoch by milliseconds */
     || { days: 0, hours: 0, minutes: 0, seconds: 0 }
 )
+
+// count
 const countdownInterval = ref(null)
 const countdown = () => { --timeLeft.value }
 
@@ -97,6 +92,8 @@ watchEffect(() => {
     }
 })
 
+
+// form state
 const formState = ref({
     bidPrice: ''
 })
@@ -104,8 +101,13 @@ const handleSubmit = () => {
 
 }
 
+
+// current highest price
+const currentHighestPrice = ref('100')
+
 onMounted(() => {
     contractStore.getAllSessions()
+    contractStore.doBid()
 })
 </script>
 

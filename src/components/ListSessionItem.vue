@@ -70,11 +70,6 @@ const formattedTime = computed(() => {
 })
 
 const hasEnded = computed(() => {
-  // console.log('%c formattedTime.value.endedMoment', 'background: red; color: white', moment.unix(formattedTime.value.endedMoment).format('DD-MM-YYYY HH:mm'))
-  // console.log('%c new Date().getTime()', 'background: green; color: white', moment().format('DD-MM-YYYY HH:mm'))
-
-  console.log('%c formattedTime.value.endedMoment', 'background: red; color: white', moment.unix(formattedTime.value.endedMoment) / 1000)
-  console.log('%c new Date().getTime()', 'background: green; color: white', moment().unix())
   return moment.unix(formattedTime.value.endedMoment) / 1000 <= moment().unix()
 })
 </script>

@@ -13,16 +13,14 @@ const height = 500;
 
 export const useContracts = defineStore('smartContractStore', () => {
     const currentAccount = ref(null)
-    const setCurrentAccount = newVal => { currentAccount.value = newVal }
-
     const balance = ref('')
-    const setBalance = newVal => { balance.value = newVal }
-
     const listSession = ref([])
-    const setListSession = newVal => { listSession.value = newVal }
+    const showGuidance = ref(false)
 
     const getEthereumContract = async () => {
         const provider = new ethers.providers.Web3Provider(ethereum);
+        console.log('provider', provider)
+        console.log('ethereum', ethereum)
         const signer = provider.getSigner();
         const auctionContract = new ethers.Contract(contractAddressAuction, contractABIAuction, signer)
         return {
@@ -35,12 +33,13 @@ export const useContracts = defineStore('smartContractStore', () => {
             if (!ethereum) return message.error('Metamask is not ready')
             const accounts = await ethereum.request({ method: 'eth_accounts' })
             if (accounts.length) {
-                setCurrentAccount(accounts[0])
+                currentAccount.value = accounts[0]
             } else {
-                console.log('No account found!')
+                throw new Error('No account found!')
             }
             console.log('List accounts', accounts)
         } catch (error) {
+            message.error(`You haven't connected to your wallet`)
             console.log(error);
         }
     }
@@ -49,10 +48,11 @@ export const useContracts = defineStore('smartContractStore', () => {
         try {
             if (!ethereum) return alert("Please install metamask!");
             const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-            setCurrentAccount(accounts[0]);
+            currentAccount.value = accounts[0]
             message.success('Your wallet is connected')
         } catch (error) {
             console.log(error);
+            showGuidance.value = true
         }
     }
 
@@ -61,7 +61,7 @@ export const useContracts = defineStore('smartContractStore', () => {
             const { provider } = await getEthereumContract()
             const _balance = await provider.getBalance(currentAccount.value)
             const formattedBalance = utilsEthers.formatUnits(_balance, 18) // balance = _balance * 10^8
-            setBalance(formattedBalance)
+            balance.value = formattedBalance
         } catch (error) {
             console.log(error)
         }
@@ -81,7 +81,7 @@ export const useContracts = defineStore('smartContractStore', () => {
                     imgSrc: `https://picsum.photos/id/${index}/${width}/${height}.jpg`
                 }
             })
-            setListSession(result)
+            listSession.value = result
             return result
         } catch (error) {
             console.log(error)
@@ -99,9 +99,22 @@ export const useContracts = defineStore('smartContractStore', () => {
         }
     }
 
+    const doBid = async () => {
+        try {
+            const { auctionContract } = await getEthereumContract()
+            console.log('auctionContract', auctionContract)
+        } catch (error) {
+            message.error('Bidding fail, please try again.')
+            console.log(error)
+        }
+    }
+
+
+
     isWalletConnected()
 
     return {
+        showGuidance,
         currentAccount,
         balance,
         listSession,
@@ -109,6 +122,7 @@ export const useContracts = defineStore('smartContractStore', () => {
         connectWallet,
         getBalance,
         getAllSessions,
-        createSession
+        createSession,
+        doBid
     }
 })

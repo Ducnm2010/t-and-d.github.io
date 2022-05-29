@@ -84,7 +84,6 @@ onMounted(async () => {
 <style lang="scss" scoped>
 .page.bidding {
   height: 100%;
-  background-color: #eeeeee;
   overflow-y: auto;
 
   .container {

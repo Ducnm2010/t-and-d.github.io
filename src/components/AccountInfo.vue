@@ -2,26 +2,22 @@
   <div class="account-info">
     <div class="account-info__avatar">
       <div class="avatar">
-        <img
-          src="../assets/user.png"
-          alt="user"
-        >
+        <!-- <img src="../assets/user.png" alt="user"> -->
+        <img src="" alt="user">
       </div>
     </div>
     <div class="account-info__username">
-      <a-tooltip>
+      <a-tooltip v-if="currentAccount">
         <template #title>{{ currentAccount }}</template>
         <a-typography-title class="username">{{ truncatedAccount }}</a-typography-title>
       </a-tooltip>
+      <a-typography-title v-else class="username">Anonymous</a-typography-title>
     </div>
     <div class="account-info__wallet">
 
       <div class="wallet">
         <span class="symbol">
-          <img
-            src="../assets/ethereum.svg"
-            alt="ether"
-          >
+          <img src="../assets/ethereum.svg" alt="ether">
         </span>
         <span class="amount">
           {{ truncatedBalance }}
@@ -29,7 +25,14 @@
         <span class="currency">{{ currency }}</span>
       </div>
     </div>
-    <slot name="action" />
+    <slot v-if="currentAccount" name="action"></slot>
+    <div v-else style="text-align: center; margin-top: 10px">
+      <a-button size="small" type="primary" @click="handleConnectToWallet">Get wallet</a-button>
+    </div>
+    <a-modal v-model:visible="visible" title="Notification" @ok="visible = false">
+      You haven't connect to your wallet yet.
+      Please connect to your wallet via meta mask
+    </a-modal>
   </div>
 </template>
 
@@ -45,9 +48,12 @@ const truncatedBalance = computed(() => balance?.value.slice(0, 7) || '0')
 
 const currency = ref('ETH')
 
-watchEffect(() => {
-  console.log(truncatedBalance)
-})
+
+const visible = ref(false)
+const handleConnectToWallet = async () => {
+  await contractStore.connectWallet()
+}
+
 </script>
 
 <style lang="scss" scoped>
