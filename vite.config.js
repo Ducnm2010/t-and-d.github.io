@@ -6,6 +6,7 @@ import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers';
 // https://vitejs.dev/config/
 export default defineConfig({
   publicPath: process.env.NODE_ENV === 'production' ? '/t-and-d.github.io/' : '/',
+  publicDir: '/assets/',
   base: '/t-and-d.github.io/',
   resolve: {
     alias: {

@@ -3,18 +3,9 @@
     <a-layout-header class="layout-header">
       <div class="header">
         <div class="brand">
-          <img
-            src="../assets/logo.svg"
-            alt="logo"
-            @click="$router.push('/')"
-            style="cursor: pointer"
-          />
+          <img src="../assets/logo.svg" alt="logo" @click="$router.push('/')" style="cursor: pointer" />
         </div>
-        <a-menu
-          :selectedKeys="current"
-          mode="horizontal"
-          @select="handleSelect"
-        >
+        <a-menu :selectedKeys="current" mode="horizontal" @select="handleSelect">
           <a-menu-item key="about">
             <template #icon>
               <home-outlined />
@@ -42,21 +33,15 @@
     <a-layout-footer class="layout-footer">
       © Copyright by T&D
     </a-layout-footer>
-    <a-modal
-      v-model:visible="showGuide"
-      title="Guide to our service"
-      @ok="showGuide = false"
-    >
+    <a-modal v-model:visible="showGuide" title="Guide to our service" @ok="showGuide = false">
       Our service is based on blockchain platform in order to save all our
       customer's transaction. That ensure you to avoid all matter of scams
 
       <ol style="margin-top: 1.5rem">
         <li>
-          <a
-            class="hyperlink"
-            href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?hl=en"
-            >Install MetaMask extension</a
-          >. This helps us to help you connect to your wallet.
+          <a class="hyperlink"
+            href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?hl=en">Install
+            MetaMask extension</a>. This helps us to help you connect to your wallet.
         </li>
         <li>Choose your own account and connect to wallet via meta mask</li>
       </ol>
@@ -92,6 +77,7 @@ const handleSelect = (selected) => {
   display: flex;
   flex: 1;
   background-color: #ffffff;
+
   .layout-header {
     background-color: #ffffff;
   }
@@ -104,6 +90,8 @@ const handleSelect = (selected) => {
 .layout-header {
   position: relative;
   z-index: 100;
+  margin-top: 20px;
+  margin-bottom: 20px;
 
   .header {
     display: flex;

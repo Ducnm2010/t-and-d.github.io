@@ -98,22 +98,23 @@ body {
     border-bottom: none;
   }
 
-  .ant-typography {
-    &h1 {}
+  h1.ant-typography {}
 
-    &h2 {
-      font-size: 30px;
-    }
+  h2.ant-typography {
+    color: var(--text-primary);
+    font-size: 30px;
+    font-weight: 600;
+  }
 
-    &div {
-      font-size: 1rem;
-      font-weight: 400;
-      line-height: 24px;
-    }
+  div.ant-typography {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 24px;
   }
 
   .ant-btn {
-    border-radius: 12px !important;
+    border-radius: 12px;
     padding: 12px 24px;
     height: unset;
     width: unset;
@@ -134,5 +135,10 @@ input:-webkit-autofill:active {
   width: 5px;
   border-radius: 10px;
   background-color: #ccc;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 </style>

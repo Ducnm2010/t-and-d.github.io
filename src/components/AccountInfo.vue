@@ -37,7 +37,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watchEffect } from 'vue'
+import { computed, ref } from 'vue'
 import { useContracts } from '../store/useContracts'
 import { storeToRefs } from 'pinia'
 

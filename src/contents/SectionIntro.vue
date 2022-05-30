@@ -4,18 +4,22 @@
       <a-row :gutter="80">
         <a-col :span="12">
           <div style="height: 100%; display: flex; flex-direction: column; justify-content: center">
-            <a-typography-title :level="2">Let's bidding your photography</a-typography-title>
-            <a-typography-paragraph>
+            <a-typography-title :level="2" style="max-width: 277px; margin-bottom: 24px">Let's bidding your photography
+            </a-typography-title>
+            <a-typography-paragraph style="max-width: 460px; margin-bottom: 24px;">
               sit amet consectetur adipisicing elit. Assumenda eius ab nostrum libero pariatur at necessitatibus tempore
               veniam! Nemo, voluptatem tenetur. Aut molestiae blanditiis dolores maxime repellat temporibus quibusdam
               fuga?
             </a-typography-paragraph>
             <a-row type="flex" :gutter="16">
               <a-col>
-                <a-button @click="connectToWallet">Connect to your wallet</a-button>
+                <a-button style="padding-left: 52.5px; padding-right: 52.5px" @click="connectToWallet">
+                  Connect to your
+                  wallet
+                </a-button>
               </a-col>
               <a-col>
-                <a-button type="primary" @click="$router.push('/bidding')">Go bidding</a-button>
+                <a-button type="primary" style="padding-right: 37.5px; padding-left: 37.5px;" @click="$router.push('/bidding')">Go bidding</a-button>
               </a-col>
             </a-row>
           </div>
@@ -50,18 +54,7 @@ const connectToWallet = async () => {
 
 <style scoped lang="scss">
 section.introducing {
-  background-blend-mode: overlay;
-  background-position: center;
-  background-size: cover;
-  background-attachment: fixed;
   min-height: 700px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.container {
-  max-width: 1200px;
 }
 
 .space {
