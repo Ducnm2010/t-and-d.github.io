@@ -4,7 +4,9 @@
     <div style="height: 120px"></div>
     <section-on-experiences></section-on-experiences>
     <div style="height: 120px"></div>
-
+    <section-best-photos></section-best-photos>
+    <div style="height: 120px;"></div>
+    <section-workflow></section-workflow>
 
     <div class="pattern pattern-1" :style="{ 'background-image': `url(${pattern1})` }"></div>
     <div class="pattern pattern-2" :style="{ 'background-image': `url(${pattern2})` }"></div>
@@ -22,6 +24,8 @@ import pattern4 from '../assets/rectangle-4.svg'
 import pattern5 from '../assets/rectangle-5.svg'
 import SectionIntro from '../contents/SectionIntro.vue'
 import SectionOnExperiences from '../contents/SectionOnExperiences.vue'
+import SectionBestPhotos from '../contents/SectionBestPhotos.vue'
+import SectionWorkflow from '../contents/SectionWorkflow.vue'
 </script>
 
 <style scoped lang="scss">

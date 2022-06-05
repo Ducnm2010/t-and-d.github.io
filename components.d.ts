@@ -26,6 +26,7 @@ declare module '@vue/runtime-core' {
     ATypography: typeof import('ant-design-vue/es')['Typography']
     ATypographyParagraph: typeof import('ant-design-vue/es')['TypographyParagraph']
     ATypographyTitle: typeof import('ant-design-vue/es')['TypographyTitle']
+    Carousel: typeof import('./src/components/@base/carousel/index.vue')['default']
     Countdown: typeof import('./src/components/Countdown.vue')['default']
     FullScreenLoading: typeof import('./src/components/FullScreenLoading.vue')['default']
     ListSessionItem: typeof import('./src/components/ListSessionItem.vue')['default']
