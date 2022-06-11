@@ -10,7 +10,7 @@
                         sit amet consectetur adipisicing elit. Assumenda eius ab nostrum libero pariatur at
                         necessitatibus tempore veniam! Nemo, voluptatem tenetur.
                     </a-typography-paragraph>
-                    <img class="illustration" src="../assets/image-4.jpg" alt="">
+                    <img class="illustration" src="../../assets/image-4.jpg" alt="">
                 </a-col>
                 <a-col :span="13">
                     <a-row :gutter="40">
@@ -37,11 +37,11 @@
 </template>
 
 <script setup>
-import iconDollar from '../assets/icons/dollar-square.svg'
-import iconPicture from '../assets/icons/picture-frame.svg'
-import iconPeople from '../assets/icons/people.svg'
-import iconUser from '../assets/icons/user-edit.svg'
-import CardInfo from './SectionOnExperiences/CardInfo.vue'
+import iconDollar from '../../assets/icons/dollar-square.svg'
+import iconPicture from '../../assets/icons/picture-frame.svg'
+import iconPeople from '../../assets/icons/people.svg'
+import iconUser from '../../assets/icons/user-edit.svg'
+import CardInfo from './../SectionOnExperiences/CardInfo.vue'
 </script>
 
 <style scoped>

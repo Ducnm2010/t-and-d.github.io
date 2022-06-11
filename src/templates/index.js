@@ -1,1 +1,1 @@
-export { default as MainTemplate } from './MainTemplate.vue'
+export { default as MainTemplate } from './MainTemplate/MainTemplate.vue'

@@ -4,7 +4,7 @@
             <a-typography-title :level="2" style="text-align: center;">How we work?</a-typography-title>
             <div class="workflow-graph">
                 <div class="graph">
-                    <img src="../assets/ellipse-1.svg" alt="graph-1">
+                    <img src="../../assets/ellipse-1.svg" alt="graph-1">
 
                     <card-flow v-for="(card, index) in listCards" :key="index" :img-src="card.imgSrc"
                         :title="card.title" :content="card.content" :position-props="card.positionProps" />
@@ -15,10 +15,10 @@
 </template>
 
 <script setup>
-import SearchIcon from '../assets/icons/search-normal.svg'
-import DollarIcon from '../assets/icons/dollar-square.svg'
-import VerifyIcon from '../assets/icons/verify.svg'
-import CardFlow from './SectionWorkflow/CardFlow.vue';
+import SearchIcon from '../../assets/icons/search-normal.svg'
+import DollarIcon from '../../assets/icons/dollar-square.svg'
+import VerifyIcon from '../../assets/icons/verify.svg'
+import CardFlow from '../SectionWorkflow/CardFlow.vue';
 
 const listCards = [
     {

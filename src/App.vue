@@ -55,7 +55,7 @@ onMounted(() => {
 :root {
   --text-primary: #111827;
   --text-secondary: #757575;
-  ;
+  --primary-color: #2979FF;
 }
 
 
@@ -140,5 +140,10 @@ input:-webkit-autofill:active {
 .container {
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.highlight {
+  font-weight: bold;
+  color: var(--primary-color)
 }
 </style>

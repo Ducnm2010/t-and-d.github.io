@@ -23,9 +23,9 @@ import pattern3 from '../assets/rectangle-3.svg'
 import pattern4 from '../assets/rectangle-4.svg'
 import pattern5 from '../assets/rectangle-5.svg'
 import SectionIntro from '../contents/SectionIntro.vue'
-import SectionOnExperiences from '../contents/SectionOnExperiences.vue'
+import SectionOnExperiences from '../contents/SectionOnExperiences/SectionOnExperiences.vue'
 import SectionBestPhotos from '../contents/SectionBestPhotos.vue'
-import SectionWorkflow from '../contents/SectionWorkflow.vue'
+import SectionWorkflow from '../contents/SectionWorkflow/SectionWorkflow.vue'
 </script>
 
 <style scoped lang="scss">
@@ -37,6 +37,7 @@ import SectionWorkflow from '../contents/SectionWorkflow.vue'
     background-position: center;
     background-repeat: no-repeat;
     position: absolute;
+    pointer-events: none;
 
     &.pattern-1 {
       width: 351px;

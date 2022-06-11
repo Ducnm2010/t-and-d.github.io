@@ -2,7 +2,6 @@
   <div class="account-info">
     <div class="account-info__avatar">
       <div class="avatar">
-        <!-- <img src="../assets/user.png" alt="user"> -->
         <img src="" alt="user">
       </div>
     </div>
