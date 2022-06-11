@@ -5,7 +5,10 @@ import {
 } from 'ethers'
 import { contractABIAuction, contractAddressAuction } from '../utils/constant.js'
 import { message } from 'ant-design-vue'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import helper from '../utils/helper.js'
+import _array from 'lodash/array'
+import { sessionDuration } from '../utils/constant'
 
 const { ethereum } = window;
 const width = 500;
@@ -15,12 +18,17 @@ export const useContracts = defineStore('smartContractStore', () => {
     const currentAccount = ref(null)
     const balance = ref('')
     const listSession = ref([])
+    const listSessionPaginated = computed(() => _array.chunk(listSession.value, pagination.value.pageSize))
+    const pagination = ref({
+        pageNumber: 1,
+        pageSize: 6,
+        totalPages: 0,
+        totalRecords: 0
+    })
     const showGuidance = ref(false)
 
     const getEthereumContract = async () => {
         const provider = new ethers.providers.Web3Provider(ethereum);
-        console.log('provider', provider)
-        console.log('ethereum', ethereum)
         const signer = provider.getSigner();
         const auctionContract = new ethers.Contract(contractAddressAuction, contractABIAuction, signer)
         return {
@@ -37,7 +45,6 @@ export const useContracts = defineStore('smartContractStore', () => {
             } else {
                 throw new Error('No account found!')
             }
-            console.log('List accounts', accounts)
         } catch (error) {
             message.error(`You haven't connected to your wallet`)
             console.log(error);
@@ -72,16 +79,24 @@ export const useContracts = defineStore('smartContractStore', () => {
             const { auctionContract } = await getEthereumContract()
             const _result = await auctionContract.allSession()
             const result = _result.map((item, index) => {
+                const _base = 6
+                const _length = (index + 1).toString().length
+                const _appendedNumber = helper.appendZero(_base - _length)
                 return {
                     id: index,
+                    name: `Product ${_appendedNumber + (index + 1)}`,
+                    content: 'Lorem ipsum',
                     address: item[0],
                     startingTime: item[1].toString(),
+                    endTime: (Number(item[1].toString()) + sessionDuration).toString(),
                     startingPrice: item[2].toString(),
                     isCanceled: item[3],
-                    imgSrc: `https://picsum.photos/id/${index}/${width}/${height}.jpg`
+                    imgSrc: `https://picsum.photos/id/${index * 10 + 1}/${width}/${height}.jpg`,
                 }
             })
             listSession.value = result
+            pagination.value.totalPages = Math.ceil(result.length / pagination.value.pageSize)
+            pagination.value.totalRecords = result.length
             return result
         } catch (error) {
             console.log(error)
@@ -118,6 +133,8 @@ export const useContracts = defineStore('smartContractStore', () => {
         currentAccount,
         balance,
         listSession,
+        listSessionPaginated,
+        pagination,
         getEthereumContract,
         connectWallet,
         getBalance,

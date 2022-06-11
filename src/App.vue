@@ -121,6 +121,11 @@ body {
     font-size: 1rem;
     font-weight: 600;
   }
+
+  .ant-btn-sm {
+    font-size: 12px;
+    padding: 10px 36px;
+  }
 }
 
 input:-webkit-autofill,

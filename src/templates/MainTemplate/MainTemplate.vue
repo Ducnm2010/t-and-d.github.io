@@ -7,7 +7,8 @@
       <router-view />
     </a-layout-content>
     <a-layout-footer class="layout-footer">
-      <main-footer></main-footer>
+      <main-footer v-if="route.path === '/'"></main-footer>
+      <sub-footer v-else></sub-footer>
     </a-layout-footer>
     <a-modal v-model:visible="showGuide" title="Guide to our service" @ok="showGuide = false">
       Our service is based on blockchain platform in order to save all our
@@ -28,9 +29,13 @@
 <script setup>
 import MainHeader from './MainHeader.vue'
 import MainFooter from './MainFooter.vue'
+import SubFooter from './SubFooter.vue';
 import { useState } from '../../hooks';
+import { useRoute } from 'vue-router'
 
 const [showGuide, setShowGuide] = useState(false)
+const route = useRoute()
+console.log(route)
 </script>
 
 <style scoped lang="scss">

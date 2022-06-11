@@ -13,13 +13,13 @@
             </a-typography-paragraph>
             <a-row type="flex" :gutter="16">
               <a-col>
-                <a-button style="padding-left: 52.5px; padding-right: 52.5px" @click="connectToWallet">
+                <a-button v-wave style="padding-left: 52.5px; padding-right: 52.5px" @click="connectToWallet">
                   Connect to your
                   wallet
                 </a-button>
               </a-col>
               <a-col>
-                <a-button type="primary" style="padding-right: 37.5px; padding-left: 37.5px;" @click="$router.push('/bidding')">Go bidding</a-button>
+                <a-button v-wave type="primary" style="padding-right: 37.5px; padding-left: 37.5px;" @click="$router.push('/bidding')">Go bidding</a-button>
               </a-col>
             </a-row>
           </div>

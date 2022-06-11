@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { computed, defineEmits } from 'vue'
+import { computed } from 'vue'
 import { HomeOutlined, TransactionOutlined, BookOutlined } from '@ant-design/icons-vue'
 import { useRoute, useRouter } from 'vue-router'
 
