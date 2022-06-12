@@ -1,8 +1,9 @@
 <template>
     <div class="card-product">
-        <div v-wave class="card-product__image" :style="{ 'background-image': `url(${item.imgSrc})` }" @click="handleClick"></div>
-        <div class="card-product__title" @click="handleClick">{{ item.name }}</div>
-        <div class="card-product__content">{{ item.content }}</div>
+        <div v-wave class="card-product__image" :style="{ 'background-image': `url(${item.imgSrc})` }"
+            @click="handleClick(item.id)"></div>
+        <div class="card-product__title" @click="handleClick(item.id)">{{ item.name }}</div>
+        <div class="card-product__content">{{ item.description }}</div>
         <div class="card-product__time">
             <div class="starting-date">
                 <img :src="CalendarIcon" alt="calendar">
@@ -25,10 +26,17 @@
                 <span class="price">{{ item.startingPrice }}</span>
                 <span class="currency"> ETH</span>
             </div>
-            <a-button v-wave type="primary" size="small" @click="handleClick">
-                {{ isActive ? 'Bid now' : 'See result' }}
+            <a-button v-wave type="primary" size="small" @click="handleClick(item.id)">
+                {{ status }}
             </a-button>
+
         </div>
+        <!-- <div>
+            {{ endTime }}
+        </div>
+        <div>
+            {{ now }}
+        </div> -->
     </div>
 </template>
 
@@ -37,6 +45,7 @@ import dayjs from 'dayjs';
 import { watchEffect, computed } from 'vue';
 import CalendarIcon from '../../assets/icons/calendar-2.svg'
 import ClockIcon from '../../assets/icons/clock.svg'
+import { useRouter } from 'vue-router';
 const props = defineProps({
     item: {
         type: Object,
@@ -44,7 +53,7 @@ const props = defineProps({
             id: '',
             imgSrc: '',
             name: '',
-            content: '',
+            description: '',
             address: '',
             startingTime: '',
             startingPrice: '',
@@ -53,14 +62,22 @@ const props = defineProps({
     },
 })
 
+const router = useRouter()
+
 const startingDate = computed(() => dayjs.unix(props.item.startTime).format('DD/MM/YYYY'))
 const startingTime = computed(() => dayjs.unix(props.item.startTime).format('HH:mm'))
 const endTime = computed(() => dayjs.unix(props.item.endTime).format('DD/MM/YYYY HH:mm'))
-const isExpired = computed(() => props.item.endTime - Date.now())
+const now = computed(() => dayjs.unix(Date.now() / 1000).format('DD/MM/YYYY HH:mm'))
+const isExpired = computed(() => props.item.endTime < (Date.now() / 1000))
 const isActive = computed(() => !isExpired.value && !props.item.isCanceled)
+const status = computed(() => {
+    if (props.item.isCanceled) return 'Canceled'
+    if (isExpired.value) return 'See result'
+    return 'Bid now'
+})
 
-const handleClick = () => {
-
+const handleClick = (id) => {
+    router.push('/session/detail/' + id)
 }
 </script>
 

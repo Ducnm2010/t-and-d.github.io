@@ -6,9 +6,9 @@ import {
 import { contractABIAuction, contractAddressAuction } from '../utils/constant.js'
 import { message } from 'ant-design-vue'
 import { ref, computed } from 'vue'
-import helper from '../utils/helper.js'
+// import helper from '../utils/helper.js'
 import _array from 'lodash/array'
-import { sessionDuration } from '../utils/constant'
+// import { sessionDuration } from '../utils/constant'
 
 const { ethereum } = window;
 const width = 500;
@@ -114,7 +114,8 @@ export const useContracts = defineStore('smartContractStore', () => {
     const createSession = async (startTime, basePrice) => {
         try {
             const { auctionContract } = await getEthereumContract()
-            await auctionContract.createSession(startTime, basePrice)
+            const response = await auctionContract.createSession(startTime, basePrice)
+            console.log('response', response)
             message.success('Session is created!')
             return true
         } catch (error) {
@@ -134,7 +135,14 @@ export const useContracts = defineStore('smartContractStore', () => {
         }
     }
 
-
+    const getHighestBid = async (param) => {
+        try {
+            const { auctionContract } = await getEthereumContract()            
+            const response = await auctionContract.getHighestBid(utilsEthers.formatBytes32String(param))
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     isWalletConnected()
 
@@ -150,6 +158,7 @@ export const useContracts = defineStore('smartContractStore', () => {
         getBalance,
         // getAllSessions,
         createSession,
-        doBid
+        doBid,
+        getHighestBid
     }
 })

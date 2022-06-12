@@ -29,17 +29,18 @@
                 </a-upload>
               </a-form-item>
 
-              <a-form-item label="Starting price" name="startingPrice">
+              <a-form-item label="Starting price" name="startingPrice" required>
                 <a-input v-model:value="formSession.startingPrice" type="number" size="large" />
               </a-form-item>
 
 
               <div class="time-control">
-                <a-form-item label="Choose a date" name="date" class="time-control__item">
+                <a-form-item label="Choose a date" name="date" class="time-control__item" required>
                   <a-date-picker v-model:value="formSession.date" :allow-clear="true" format="DD-MM-YYYY" size="large">
                   </a-date-picker>
                 </a-form-item>
-                <a-form-item label="Time start" name="timeStart" style="text-align: right" class="time-control__item">
+                <a-form-item label="Time start" name="timeStart" style="text-align: right" class="time-control__item"
+                  required>
                   <a-time-picker v-model:value="formSession.timeStart" format="HH:mm" size="large"></a-time-picker>
                 </a-form-item>
               </div>
@@ -63,6 +64,7 @@ import { useFirebase } from '../store/useFirebase';
 import { UploadOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs'
 import { sessionDuration } from '../utils/constant';
+import { message } from 'ant-design-vue'
 
 const contractStore = useContracts()
 const firebaseStore = useFirebase()
@@ -91,13 +93,34 @@ const handleKeyPress = (event) => {
   if (event.key === 'enter') handleCreate()
 }
 
-const handleCreate = async () => {
-  const _date = dayjs(formSession.value.date).format('YYYY-MM-DD')
-  const _time = dayjs(formSession.value.timeStart).format('HH:mm')
-  const dateTime = dayjs(`${_date} ${_time}`).unix()
-  console.log(dateTime, formSession.value.startingPrice)
-  console.log('listFiles', listFiles.value)
+const validate = async () => {
   try {
+    if (!listFiles.value[0]) throw new Error(`Photo cannot be emptied`)
+    for (const key in formSession.value) {
+      if (Object.hasOwnProperty.call(formSession.value, key)) {
+        const element = formSession.value[key];
+        if (!element) {
+          throw new Error(`${key} cannot be emptied!`)
+        }
+      }
+    }
+    return true
+  } catch (error) {
+    message.error(error.message)
+    console.log(error)
+    return false
+  }
+}
+
+const handleCreate = async () => {
+  try {
+    const isValidate = await validate()
+    if (!isValidate) throw new Error()
+    const _date = dayjs(formSession.value.date).format('YYYY-MM-DD')
+    const _time = dayjs(formSession.value.timeStart).format('HH:mm')
+    const dateTime = dayjs(`${_date} ${_time}`).unix()
+    console.log(dateTime, formSession.value.startingPrice)
+    console.log('listFiles', listFiles.value)
     const imgUrl = await firebaseStore.uploadImage(listFiles.value[0])
     if (!imgUrl) throw new Error()
     const response = await contractStore.createSession(dateTime, formSession.value.startingPrice)

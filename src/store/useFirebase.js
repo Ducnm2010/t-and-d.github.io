@@ -1,9 +1,10 @@
 import { defineStore } from "pinia"
 import { ref, computed } from 'vue'
-import { collection, getDocs, addDoc, updateDoc, doc } from 'firebase/firestore'
+import { collection, getDocs, addDoc, updateDoc, doc, getDoc } from 'firebase/firestore'
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { db, storage } from '../firebase.config'
 import _array from 'lodash/array'
+import { message } from 'ant-design-vue'
 
 const createSession = ({ isCanceled, startTime, endTime, startingPrice, name, description, address, imgSrc }) => ({
     isCanceled: isCanceled, //
@@ -35,7 +36,7 @@ export const useFirebase = defineStore('firebaseStore', () => {
         totalPages: 0,
         totalRecords: 0
     })
-    const session = ref({
+    const sessionInstance = ref({
         isCanceled: false,
         startTime: '',
         startingPrice: '',
@@ -48,9 +49,20 @@ export const useFirebase = defineStore('firebaseStore', () => {
 
     const fetchSessions = async () => {
         const response = await getDocs(sessionCollectionRef)
-        listSessions.value = response.docs.map(doc => ({ ...doc.data() }))
+        listSessions.value = response.docs.map(doc => ({ ...doc.data(), id: doc.id }))
+        console.log(listSessions.value)
         pagination.value.totalPages = Math.ceil(listSessions.value.length / pagination.value.pageSize)
         pagination.value.totalRecords = listSessions.value.length
+    }
+
+    const fetchSessionDetail = async (id) => {
+        try {
+            const sessionRef = await doc(db, 'sessions', id)
+            const response = await getDoc(sessionRef)
+            Object.assign(sessionInstance.value, response.data())
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     const createNewSession = async (data) => {
@@ -60,13 +72,14 @@ export const useFirebase = defineStore('firebaseStore', () => {
             console.log('response', response)
         } catch (error) {
             console.log(error)
+            message.error(error.message)
         }
     }
 
     const updateSession = async ({ id, ...data }) => {
         try {
-            const updatedSession = doc(db, 'sessions', id)
-            const response = await updateDoc(updatedSession, data)
+            const sessionRef = doc(db, 'sessions', id)
+            const response = await updateDoc(sessionRef, data)
             console.log('response', response)
         } catch (error) {
             console.log(error)
@@ -80,13 +93,16 @@ export const useFirebase = defineStore('firebaseStore', () => {
             return await getDownloadURL(imageRef)
         } catch (error) {
             console.log(error)
+            message.error(error.message)
         }
     }
     return {
         listSessions,
         listSessionsPaginated,
         pagination,
+        sessionInstance,
         fetchSessions,
+        fetchSessionDetail,
         createNewSession,
         updateSession,
         uploadImage

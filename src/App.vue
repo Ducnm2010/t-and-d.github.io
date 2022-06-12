@@ -56,6 +56,8 @@ onMounted(() => {
   --text-primary: #111827;
   --text-secondary: #757575;
   --primary-color: #2979FF;
+  
+  --blue-color: #114672;
 }
 
 
