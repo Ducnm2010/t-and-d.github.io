@@ -1,9 +1,12 @@
 <template>
     <section class="product-grid">
         <div class="product-grid-filter">
-            <div class="product-grid-filter__meta">
-                Showing <span class="highlight">1-12</span> of over
+            <div class="product-grid-filter__meta" v-if="totalRecords > 0">
+                Showing <span class="highlight">{{ currentRecordRange.from }}-{{ currentRecordRange.to }}</span> of over
                 <span class="highlight">{{ totalRecords }}</span> results
+            </div>
+            <div class="product-grid-filter__meta" v-else>
+                No result was found
             </div>
             <div class="product-grid-filter__settings">
                 <a-select v-model:value="sortBy" class="sort-button" :options="sortOptions">
@@ -19,23 +22,26 @@
             </div>
 
         </div>
-        <div class="product-grid-list">
+        <div class="product-grid-list" :class="[{
+            'grid-two': gridType === GRID_TYPE.TWO_COL,
+            'grid-three': gridType === GRID_TYPE.THREE_COL
+        }]">
             <a-row :gutter="70">
                 <a-col v-for="(product, index) in listProducts" :key="index" :span="colSpan">
                     <card-product :item="product"></card-product>
                 </a-col>
             </a-row>
         </div>
-        <a-pagination class="product-grid-pagination" v-model:current="pageNumber" :total="totalRecords"
-            show-less-items />
+        <a-pagination v-if="totalRecords > 0" class="product-grid-pagination" v-model:current="pageNumber"
+            v-model:pageSize="pageSize" :total="totalRecords" show-less-items />
     </section>
 </template>
 
 <script setup>
 import { ref, onMounted, computed, watchEffect, watch } from 'vue'
-import { DownOutlined } from '@ant-design/icons-vue'
 import CardProduct from './CardProduct.vue';
 import { useContracts } from '../../store/useContracts'
+import { useFirebase } from '../../store/useFirebase';
 import { storeToRefs } from 'pinia';
 
 const GRID_TYPE = {
@@ -65,7 +71,9 @@ const sortOptions = [
 ]
 
 const contractStore = useContracts()
-const { listSession, listSessionPaginated, pagination } = storeToRefs(contractStore)
+const firebaseStore = useFirebase()
+// const { listSession, listSessionPaginated, pagination } = storeToRefs(contractStore)
+const { listSessions, listSessionsPaginated, pagination } = storeToRefs(firebaseStore)
 const listProducts = ref([])
 
 const gridType = ref(GRID_TYPE.THREE_COL)
@@ -79,41 +87,50 @@ const sortBy = ref({
 })
 
 const totalRecords = computed(() => pagination.value.totalRecords || 0)
+const showedRecords = computed(() => listSessionsPaginated.value[pageNumber.value - 1]?.length || 0)
+const pageSize = computed(() => pagination.value.pageSize)
 const pageNumber = computed({
     get: () => pagination.value?.pageNumber || 0,
     set: val => pagination.value.pageNumber = val
 })
-
-onMounted(() => {
-    contractStore.getAllSessions()
+const currentRecordRange = computed(() => {
+    const _skip = (pageNumber.value - 1) * pageSize.value
+    return {
+        from: _skip + 1,
+        to: _skip + showedRecords.value,
+    }
 })
 
+onMounted(() => {
+    // contractStore.getAllSessions()
+    firebaseStore.fetchSessions()
+})
+
+const byId = (a, b) => {
+    if (a.id > b.id) return 1
+    if (a.id < b.id) return -1
+    return 0
+}
+const byPrice = (a, b) => {
+    if (Number(a.startingPrice) > Number(b.startingPrice)) return 1
+    if (Number(a.startingPrice) < Number(b.startingPrice)) return -1
+    return 0
+}
+const byTime = (a, b) => {
+    if (a.startingTime > b.startingTime) return 1
+    if (a.startingTime < b.startingTime) return -1
+    return 0
+}
+
 watch(sortBy, newVal => {
-    if (newVal === SORT_BY.DEFAULT) {
-        listSession.value.sort((a, b) => {
-            if (a.id > b.id) return 1
-            if (a.id < b.id) return -1
-            return 0
-        })
-    }
-    if (newVal === SORT_BY.PRICE) {
-        listSession.value.sort((a, b) => {
-            if (Number(a.startingPrice) > Number(b.startingPrice)) return 1
-            if (Number(a.startingPrice) < Number(b.startingPrice)) return -1
-            return 0
-        })
-    }
-    if (newVal === SORT_BY.TIME) {
-        listSession.value.sort((a, b) => {
-            if (a.startingTime > b.startingTime) return 1
-            if (a.startingTime < b.startingTime) return -1
-            return 0
-        })
-    }
+    if (newVal === SORT_BY.DEFAULT) listSessions.value.sort(byId)
+    if (newVal === SORT_BY.PRICE) listSessions.value.sort(byPrice)
+    if (newVal === SORT_BY.TIME) listSessions.value.sort(byTime)
+
     pageNumber.value = 1
 }, { immediate: true, deep: true })
 
-watch([listSessionPaginated, pageNumber], ([newList, newPage]) => {
+watch([listSessionsPaginated, pageNumber], ([newList, newPage]) => {
     listProducts.value = newList[newPage - 1] ? newList[newPage - 1] : []
 }, { immediate: true, deep: true })
 </script>

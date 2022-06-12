@@ -35,7 +35,6 @@ import { useRoute } from 'vue-router'
 
 const [showGuide, setShowGuide] = useState(false)
 const route = useRoute()
-console.log(route)
 </script>
 
 <style scoped lang="scss">

@@ -8,13 +8,19 @@
                 <template #icon>
                     <home-outlined />
                 </template>
-                About
+                Home
             </a-menu-item>
             <a-menu-item key="guide">
                 <template #icon>
                     <book-outlined />
                 </template>
                 Guide
+            </a-menu-item>
+            <a-menu-item key="session-create">
+                <template #icon>
+                    <dingding-outlined></dingding-outlined>
+                </template>
+                Create Session
             </a-menu-item>
             <a-menu-item key="bidding">
                 <template #icon>
@@ -28,7 +34,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { HomeOutlined, TransactionOutlined, BookOutlined } from '@ant-design/icons-vue'
+import { HomeOutlined, TransactionOutlined, BookOutlined, DingdingOutlined } from '@ant-design/icons-vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -42,6 +48,7 @@ const current = computed(() => {
 const handleSelect = (selected) => {
     if (selected.key === 'about') return router.push({ name: 'about' })
     if (selected.key === 'guide') return emit('click-guild')
+    if (selected.key === 'session-create') return router.push({ name: 'session-create' })
     if (selected.key === 'user') return null
     else router.push(`/${selected.key}`)
 }

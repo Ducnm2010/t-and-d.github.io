@@ -74,43 +74,53 @@ export const useContracts = defineStore('smartContractStore', () => {
         }
     }
 
-    const getAllSessions = async () => {
-        try {
-            const { auctionContract } = await getEthereumContract()
-            const _result = await auctionContract.allSession()
-            const result = _result.map((item, index) => {
-                const _base = 6
-                const _length = (index + 1).toString().length
-                const _appendedNumber = helper.appendZero(_base - _length)
-                return {
-                    id: index,
-                    name: `Product ${_appendedNumber + (index + 1)}`,
-                    content: 'Lorem ipsum',
-                    address: item[0],
-                    startingTime: item[1].toString(),
-                    endTime: (Number(item[1].toString()) + sessionDuration).toString(),
-                    startingPrice: item[2].toString(),
-                    isCanceled: item[3],
-                    imgSrc: `https://picsum.photos/id/${index * 10 + 1}/${width}/${height}.jpg`,
-                }
-            })
-            listSession.value = result
-            pagination.value.totalPages = Math.ceil(result.length / pagination.value.pageSize)
-            pagination.value.totalRecords = result.length
-            return result
-        } catch (error) {
-            console.log(error)
-        }
-    }
+    // const getAllSessions = async () => {
+    //     try {
+    //         const { auctionContract } = await getEthereumContract()
+    //         const _result = await auctionContract.allSession()
+    //         const result = _result.map((item, index) => {
+    //             const _base = 6
+    //             const _length = (index + 1).toString().length
+    //             const _appendedNumber = helper.appendZero(_base - _length)
+    //             /** 
+    //             * @property {String} startingTime timestamp in second
+    //             * @property {String} startingPrice
+    //             */
+    //             return {
+    //                 id: index,
+    //                 name: `Product ${_appendedNumber + (index + 1)}`,
+    //                 content: 'Lorem ipsum',
+    //                 address: item[0],
+    //                 startingTime: item[1].toString(),
+    //                 endTime: (Number(item[1].toString()) + sessionDuration).toString(),
+    //                 startingPrice: item[2].toString(),
+    //                 isCanceled: item[3],
+    //                 imgSrc: `https://picsum.photos/id/${index * 10 + 1}/${width}/${height}.jpg`,
+    //             }
+    //         })
+    //         listSession.value = result
+    //         pagination.value.totalPages = Math.ceil(result.length / pagination.value.pageSize)
+    //         pagination.value.totalRecords = result.length
+    //         return result
+    //     } catch (error) {
+    //         console.log(error)
+    //     }
+    // }
 
+    /**
+     * @param {Number} startTime 
+     * @param {String} basePrice 
+     */
     const createSession = async (startTime, basePrice) => {
         try {
             const { auctionContract } = await getEthereumContract()
             await auctionContract.createSession(startTime, basePrice)
             message.success('Session is created!')
+            return true
         } catch (error) {
             message.error('There is an error occurred, please try again')
             console.log(error)
+            return false
         }
     }
 
@@ -132,13 +142,13 @@ export const useContracts = defineStore('smartContractStore', () => {
         showGuidance,
         currentAccount,
         balance,
-        listSession,
-        listSessionPaginated,
-        pagination,
+        // listSession,
+        // listSessionPaginated,
+        // pagination,
         getEthereumContract,
         connectWallet,
         getBalance,
-        getAllSessions,
+        // getAllSessions,
         createSession,
         doBid
     }

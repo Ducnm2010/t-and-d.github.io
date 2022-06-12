@@ -45,7 +45,6 @@ onMounted(async () => {
   try {
     await contractStore.connectWallet()
     await contractStore.getBalance()
-    await contractStore.getAllSessions()
   } catch (error) {
     console.log(error)
   }

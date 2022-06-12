@@ -29,6 +29,7 @@ declare module '@vue/runtime-core' {
     ATooltip: typeof import('ant-design-vue/es')['Tooltip']
     ATypographyParagraph: typeof import('ant-design-vue/es')['TypographyParagraph']
     ATypographyTitle: typeof import('ant-design-vue/es')['TypographyTitle']
+    AUpload: typeof import('ant-design-vue/es')['Upload']
     Copyright: typeof import('./src/components/Copyright.vue')['default']
     Countdown: typeof import('./src/components/Countdown.vue')['default']
     FullScreenLoading: typeof import('./src/components/FullScreenLoading.vue')['default']

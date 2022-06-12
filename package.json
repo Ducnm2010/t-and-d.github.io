@@ -17,6 +17,7 @@
     "browserify-zlib": "^0.2.0",
     "dayjs": "^1.11.2",
     "events": "^3.3.0",
+    "firebase": "^9.8.3",
     "lodash": "^4.17.21",
     "moment": "^2.29.3",
     "pinia": "^2.0.13",

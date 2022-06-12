@@ -53,8 +53,8 @@ const props = defineProps({
     },
 })
 
-const startingDate = computed(() => dayjs.unix(props.item.startingTime).format('DD/MM/YYYY'))
-const startingTime = computed(() => dayjs.unix(props.item.startingTime).format('HH:mm'))
+const startingDate = computed(() => dayjs.unix(props.item.startTime).format('DD/MM/YYYY'))
+const startingTime = computed(() => dayjs.unix(props.item.startTime).format('HH:mm'))
 const endTime = computed(() => dayjs.unix(props.item.endTime).format('DD/MM/YYYY HH:mm'))
 const isExpired = computed(() => props.item.endTime - Date.now())
 const isActive = computed(() => !isExpired.value && !props.item.isCanceled)
@@ -124,7 +124,7 @@ const handleClick = () => {
         .status {
             color: #F44336;
             background-color: rgba(244, 67, 54, 0.1);
-            padding: 2px 16px;
+            padding: 4px 16px;
             border-radius: 753px;
         }
 
