@@ -28,7 +28,7 @@
                                         <a-typography-paragraph class="label">Current Bid</a-typography-paragraph>
                                         <span class="highlight">
                                             <img class="icon" src="../assets/ethereum.svg" alt="ether">
-                                            {{ sessionInstance.startingPrice }}
+                                            {{ currentBid }}
                                             {{ currency }}
                                         </span>
                                     </div>
@@ -48,9 +48,14 @@
                                 <a-typography-paragraph class="label">
                                     Transaction URL
                                 </a-typography-paragraph>
+                                <a-tooltip>
+                                    <template #title>{{ transactionURL }}</template>
+                                    <span class="highlight">
+                                        {{ transactionURLTrim }}
+                                    </span>
+                                </a-tooltip>
                             </div>
                             <div v-else>
-
                                 <a-input v-model:value="bidPrice" size="large" class="bid-input"></a-input>
                                 <a-button type="primary" style="width: 100%;" @click="handleBid">Place a bid</a-button>
                             </div>
@@ -65,7 +70,7 @@
 <script setup>
 import { useFirebase } from '../store/useFirebase'
 import { useContracts } from '../store/useContracts'
-import { onMounted, watchEffect, computed, ref } from 'vue'
+import { onMounted, watchEffect, watch, computed, ref } from 'vue'
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router'
 import dayjs from 'dayjs'
@@ -74,28 +79,57 @@ const route = useRoute()
 const firebaseStore = useFirebase()
 const contractStore = useContracts()
 const { sessionInstance } = storeToRefs(firebaseStore)
+const { listSessions } = storeToRefs(contractStore)
 
 const id = route.params.id
 
 const currency = 'ETH'
-const isActive = true
-
+const sessionDetail = ref(null)
+const transactionURL = ref('')
+const transactionURLTrim = computed(() => {
+    const _first = transactionURL.value.slice(0, 6)
+    const _last = transactionURL.value.slice(-4)
+    return _first + '...' + _last
+})
+const isActive = computed(() => sessionDetail.value?.endTime >= (Date.now() / 1000))
 const endTime = computed(() => dayjs.unix(sessionInstance.value.endTime).format('DD-MM-YYYY HH:mm'))
 
-const bidPrice = ref('')
-const handleBid = () => {
 
+watchEffect(() => console.log(sessionInstance.value.endTime))
+
+const bidPrice = ref('')
+const currentBid = ref(0)
+const setCurrentBid = async () => {
+    const response = await contractStore.getHighestBid(sessionDetail.value.index)
+    console.log('response', response)
+    if (!response) return currentBid.value = sessionDetail.value.startingPrice
+    currentBid.value = response.fund.toString()
+    transactionURL.value = response['0']
+    return
+}
+const handleBid = async () => {
+    await contractStore.placeBid(sessionDetail.value.index, Number(bidPrice.value))
+    await contractStore.getHighestBid(sessionDetail.value.index)
 }
 
 
 onMounted(async () => {
     await firebaseStore.fetchSessionDetail(id)
-    await contractStore.getHighestBid(1)
-    // const { auctionContract } = await contractStore.getEthereumContract()
-    // console.log(auctionContract)
+    await contractStore.getAllSessions()
 })
 
-watchEffect(() => console.log(sessionInstance.value))
+
+const match = (recordOnChain, recordInDB) => {
+    return Number(recordOnChain.startTime) === Number(recordInDB.startTime) && Number(recordOnChain.startingPrice) === Number(recordInDB.startingPrice)
+}
+
+watch([sessionInstance, listSessions], ([currentSession, currentList]) => {
+    const recordFromContract = currentList.filter(session => match(session, currentSession))[0]
+    const recordFromDB = currentSession
+    sessionDetail.value = Object.assign(recordFromDB, recordFromContract)
+})
+
+watch(sessionDetail, () => setCurrentBid())
 </script>
 
 <style scoped lang="scss">
@@ -152,7 +186,8 @@ watchEffect(() => console.log(sessionInstance.value))
         }
 
         .current-bid,
-        .countdown {
+        .countdown,
+        .transaction {
             span {
                 font-size: 24px;
                 line-height: 30px;

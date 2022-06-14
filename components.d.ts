@@ -25,6 +25,7 @@ declare module '@vue/runtime-core' {
     ARow: typeof import('ant-design-vue/es')['Row']
     ASelect: typeof import('ant-design-vue/es')['Select']
     ATimePicker: typeof import('ant-design-vue/es')['TimePicker']
+    ATooltip: typeof import('ant-design-vue/es')['Tooltip']
     ATypographyParagraph: typeof import('ant-design-vue/es')['TypographyParagraph']
     ATypographyTitle: typeof import('ant-design-vue/es')['TypographyTitle']
     AUpload: typeof import('ant-design-vue/es')['Upload']

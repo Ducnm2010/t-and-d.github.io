@@ -50,7 +50,7 @@ export const useFirebase = defineStore('firebaseStore', () => {
     const fetchSessions = async () => {
         const response = await getDocs(sessionCollectionRef)
         listSessions.value = response.docs.map(doc => ({ ...doc.data(), id: doc.id }))
-        console.log(listSessions.value)
+        console.log('@fetchSessions', listSessions.value)
         pagination.value.totalPages = Math.ceil(listSessions.value.length / pagination.value.pageSize)
         pagination.value.totalRecords = listSessions.value.length
     }

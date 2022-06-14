@@ -102,7 +102,7 @@ const currentRecordRange = computed(() => {
 })
 
 onMounted(() => {
-    // contractStore.getAllSessions()
+    contractStore.getAllSessions()
     firebaseStore.fetchSessions()
 })
 

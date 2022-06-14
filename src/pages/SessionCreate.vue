@@ -123,7 +123,11 @@ const handleCreate = async () => {
     console.log('listFiles', listFiles.value)
     const imgUrl = await firebaseStore.uploadImage(listFiles.value[0])
     if (!imgUrl) throw new Error()
+    console.log({
+      dateTime, startingPrice: formSession.value.startingPrice
+    })
     const response = await contractStore.createSession(dateTime, formSession.value.startingPrice)
+    console.log('response', response)
     if (!response) throw new Error()
     await firebaseStore.createNewSession({ ...formSession.value, startTime: dateTime, endTime: dateTime + sessionDuration, imgSrc: imgUrl })
     router.push('/bidding')

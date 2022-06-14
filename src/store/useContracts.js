@@ -5,32 +5,24 @@ import {
 } from 'ethers'
 import { contractABIAuction, contractAddressAuction } from '../utils/constant.js'
 import { message } from 'ant-design-vue'
-import { ref, computed } from 'vue'
-// import helper from '../utils/helper.js'
+import { ref } from 'vue'
 import _array from 'lodash/array'
-// import { sessionDuration } from '../utils/constant'
 
 const { ethereum } = window;
-const width = 500;
-const height = 500;
 
 export const useContracts = defineStore('smartContractStore', () => {
     const currentAccount = ref(null)
     const balance = ref('')
-    const listSession = ref([])
-    const listSessionPaginated = computed(() => _array.chunk(listSession.value, pagination.value.pageSize))
-    const pagination = ref({
-        pageNumber: 1,
-        pageSize: 6,
-        totalPages: 0,
-        totalRecords: 0
-    })
     const showGuidance = ref(false)
+    const listSessions = ref([])
+    const currentBid = ref('')
 
     const getEthereumContract = async () => {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
         const auctionContract = new ethers.Contract(contractAddressAuction, contractABIAuction, signer)
+
+        console.log('auctionContract', auctionContract)
         return {
             auctionContract, provider, signer
         }
@@ -74,43 +66,25 @@ export const useContracts = defineStore('smartContractStore', () => {
         }
     }
 
-    // const getAllSessions = async () => {
-    //     try {
-    //         const { auctionContract } = await getEthereumContract()
-    //         const _result = await auctionContract.allSession()
-    //         const result = _result.map((item, index) => {
-    //             const _base = 6
-    //             const _length = (index + 1).toString().length
-    //             const _appendedNumber = helper.appendZero(_base - _length)
-    //             /** 
-    //             * @property {String} startingTime timestamp in second
-    //             * @property {String} startingPrice
-    //             */
-    //             return {
-    //                 id: index,
-    //                 name: `Product ${_appendedNumber + (index + 1)}`,
-    //                 content: 'Lorem ipsum',
-    //                 address: item[0],
-    //                 startingTime: item[1].toString(),
-    //                 endTime: (Number(item[1].toString()) + sessionDuration).toString(),
-    //                 startingPrice: item[2].toString(),
-    //                 isCanceled: item[3],
-    //                 imgSrc: `https://picsum.photos/id/${index * 10 + 1}/${width}/${height}.jpg`,
-    //             }
-    //         })
-    //         listSession.value = result
-    //         pagination.value.totalPages = Math.ceil(result.length / pagination.value.pageSize)
-    //         pagination.value.totalRecords = result.length
-    //         return result
-    //     } catch (error) {
-    //         console.log(error)
-    //     }
-    // }
+    const getAllSessions = async () => {
+        try {
+            const { auctionContract } = await getEthereumContract()
+            const _result = await auctionContract.allSession()
+            const result = _result.map((item, index) => {
+                return {
+                    index: index,
+                    address: item[0],
+                    startTime: item[1].toString(),
+                    startingPrice: item[2].toString(),
+                    isCanceled: item[3],
+                }
+            })
+            listSessions.value = result
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
-    /**
-     * @param {Number} startTime 
-     * @param {String} basePrice 
-     */
     const createSession = async (startTime, basePrice) => {
         try {
             const { auctionContract } = await getEthereumContract()
@@ -125,20 +99,22 @@ export const useContracts = defineStore('smartContractStore', () => {
         }
     }
 
-    const doBid = async () => {
+    const getHighestBid = async (param) => {
         try {
             const { auctionContract } = await getEthereumContract()
-            console.log('auctionContract', auctionContract)
+            const response = await auctionContract.getHighestBid(param)
+            return response
         } catch (error) {
-            message.error('Bidding fail, please try again.')
             console.log(error)
+            return false
         }
     }
 
-    const getHighestBid = async (param) => {
+    const placeBid = async (id, bidPrice) => {
         try {
-            const { auctionContract } = await getEthereumContract()            
-            const response = await auctionContract.getHighestBid(utilsEthers.formatBytes32String(param))
+            const { auctionContract } = await getEthereumContract()
+            const response = await auctionContract.bid(id, bidPrice)
+            console.log('response', response)
         } catch (error) {
             console.log(error)
         }
@@ -150,15 +126,16 @@ export const useContracts = defineStore('smartContractStore', () => {
         showGuidance,
         currentAccount,
         balance,
-        // listSession,
+        listSessions,
         // listSessionPaginated,
         // pagination,
         getEthereumContract,
+        getAllSessions,
         connectWallet,
         getBalance,
-        // getAllSessions,
         createSession,
-        doBid,
+        // doBid,
+        placeBid,
         getHighestBid
     }
 })
