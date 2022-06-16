@@ -22,7 +22,7 @@ export const useContracts = defineStore('smartContractStore', () => {
         const signer = provider.getSigner();
         const auctionContract = new ethers.Contract(contractAddressAuction, contractABIAuction, signer)
 
-        console.log('auctionContract', auctionContract)
+        // console.log('auctionContract', auctionContract)
         return {
             auctionContract, provider, signer
         }
@@ -89,7 +89,7 @@ export const useContracts = defineStore('smartContractStore', () => {
         try {
             const { auctionContract } = await getEthereumContract()
             const response = await auctionContract.createSession(startTime, basePrice)
-            console.log('response', response)
+            // console.log('response', response)
             message.success('Session is created!')
             return true
         } catch (error) {
@@ -105,8 +105,7 @@ export const useContracts = defineStore('smartContractStore', () => {
             const response = await auctionContract.getHighestBid(param)
             return response
         } catch (error) {
-            console.log(error)
-            return false
+            return error
         }
     }
 
@@ -114,7 +113,7 @@ export const useContracts = defineStore('smartContractStore', () => {
         try {
             const { auctionContract } = await getEthereumContract()
             const response = await auctionContract.bid(id, bidPrice)
-            console.log('response', response)
+            // console.log('response', response)
         } catch (error) {
             console.log(error)
         }

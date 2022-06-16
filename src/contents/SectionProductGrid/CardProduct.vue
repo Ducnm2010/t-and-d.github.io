@@ -21,10 +21,18 @@
             </span>
         </div>
         <div class="card-product__cta">
-            <div class="starting-price">
+            <a-tooltip v-if="needTruncated">
+                <template #title>{{ item.startingPrice }} Wei</template>
+                <div class="starting-price">
+                    <img class="icon" src="../../assets/ethereum.svg" alt="eth">
+                    <span class="price">{{ startingPriceFormatted }}</span>
+                    <span class="currency"> Wei</span>
+                </div>
+            </a-tooltip>
+            <div v-else class="starting-price">
                 <img class="icon" src="../../assets/ethereum.svg" alt="eth">
-                <span class="price">{{ item.startingPrice }}</span>
-                <span class="currency"> ETH</span>
+                <span class="price">{{ startingPriceFormatted }}</span>
+                <span class="currency"> Wei</span>
             </div>
             <a-button v-wave type="primary" size="small" @click="handleClick(item.id)">
                 {{ status }}
@@ -46,6 +54,7 @@ import { watchEffect, computed } from 'vue';
 import CalendarIcon from '../../assets/icons/calendar-2.svg'
 import ClockIcon from '../../assets/icons/clock.svg'
 import { useRouter } from 'vue-router';
+import { ethers } from 'ethers'
 const props = defineProps({
     item: {
         type: Object,
@@ -55,7 +64,7 @@ const props = defineProps({
             name: '',
             description: '',
             address: '',
-            startingTime: '',
+            startTime: '',
             startingPrice: '',
             isCanceled: false
         })
@@ -79,6 +88,14 @@ const status = computed(() => {
 const handleClick = (id) => {
     router.push('/session/detail/' + id)
 }
+
+const maxLength = 3
+const needTruncated = computed(() => props.item.startingPrice.length > maxLength)
+const startingPriceFormatted = computed(() => {
+    if (needTruncated.value) return props.item.startingPrice.slice(0, maxLength) + '...'
+    return props.item.startingPrice
+})
+watchEffect(() => console.log(needTruncated.value))
 </script>
 
 <style scoped lang="scss">

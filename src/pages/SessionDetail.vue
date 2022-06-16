@@ -5,7 +5,8 @@
                 <a-row>
                     <a-col :span="12">
                         <div class="wrap-photo">
-                            <div class="photo" :style="{ 'background-image': `url(${sessionInstance.imgSrc})` }"></div>
+                            <div v-wave class="photo" :style="{ 'background-image': `url(${sessionInstance.imgSrc})` }">
+                            </div>
                         </div>
                     </a-col>
                     <a-col :span="12">
@@ -17,7 +18,12 @@
                                 {{ sessionInstance.description }}
                             </a-typography-paragraph>
                             <a-typography-paragraph>
-                                Owner by <span class="ơwner highlight">Updating</span>
+                                <a-tooltip>
+                                    <template #title>
+                                        {{ ownerAddress }}
+                                    </template>
+                                    Owner by <span class="ơwner highlight">{{ ownerAddressTrim }}</span>
+                                </a-tooltip>
                             </a-typography-paragraph>
 
                             <a-divider></a-divider>
@@ -44,21 +50,43 @@
                             </a-row>
 
                             <a-divider></a-divider>
-                            <div v-if="!isActive" class="transaction">
-                                <a-typography-paragraph class="label">
-                                    Transaction URL
+                            <div v-if="hasNotBegin">
+                                <a-typography-paragraph class="transaction">
+                                    Status: <span class="highlight">Pending</span>
                                 </a-typography-paragraph>
-                                <a-tooltip>
-                                    <template #title>{{ transactionURL }}</template>
-                                    <span class="highlight">
-                                        {{ transactionURLTrim }}
-                                    </span>
-                                </a-tooltip>
+                                <a-typography-paragraph class="transaction">
+
+                                </a-typography-paragraph>
                             </div>
-                            <div v-else>
-                                <a-input v-model:value="bidPrice" size="large" class="bid-input"></a-input>
-                                <a-button type="primary" style="width: 100%;" @click="handleBid">Place a bid</a-button>
-                            </div>
+                            <template v-else-if="isActive">
+                                <div>
+                                    <a-input v-model:value="bidPrice" size="large" class="bid-input"></a-input>
+                                    <a-button type="primary" style="width: 100%;" @click="handleBid">Place a bid
+                                    </a-button>
+                                </div>
+                            </template>
+
+                            <template v-else>
+                                <div v-if="isNoOneJoin">
+                                    <a-typography-paragraph class="transaction">
+                                        Status:
+                                    </a-typography-paragraph>
+                                    <a-typography-paragraph class="transaction">
+                                        <span class="highlight">No one has joined this session</span>
+                                    </a-typography-paragraph>
+                                </div>
+                                <div v-else-if="!isNoOneJoin" class="transaction">
+                                    <a-typography-paragraph class="label">
+                                        Transaction URL
+                                    </a-typography-paragraph>
+                                    <a-tooltip>
+                                        <template #title>{{ transactionURL }}</template>
+                                        <span class="highlight">
+                                            {{ transactionURLTrim }}
+                                        </span>
+                                    </a-tooltip>
+                                </div>
+                            </template>
                         </div>
                     </a-col>
                 </a-row>
@@ -83,7 +111,7 @@ const { listSessions } = storeToRefs(contractStore)
 
 const id = route.params.id
 
-const currency = 'ETH'
+const currency = 'Wei'
 const sessionDetail = ref(null)
 const transactionURL = ref('')
 const transactionURLTrim = computed(() => {
@@ -91,8 +119,19 @@ const transactionURLTrim = computed(() => {
     const _last = transactionURL.value.slice(-4)
     return _first + '...' + _last
 })
-const isActive = computed(() => sessionDetail.value?.endTime >= (Date.now() / 1000))
+const ownerAddress = ref('')
+const ownerAddressTrim = computed(() => {
+    const _first = ownerAddress.value?.slice(0, 6) || '...'
+    const _last = ownerAddress.value?.slice(-4) || '...'
+    return _first + '...' + _last
+})
+const isActive = computed(() => sessionDetail.value?.endTime >= (Date.now() / 1000) && sessionDetail.value?.startTime < (Date.now() / 1000))
+const hasNotBegin = computed(() => sessionDetail.value?.startTime > (Date.now() / 1000))
+const hasEnded = computed(() => sessionDetail.value?.endTime < (Date.now() / 1000))
 const endTime = computed(() => dayjs.unix(sessionInstance.value.endTime).format('DD-MM-YYYY HH:mm'))
+const reason = ref('')
+const message = ref('')
+const isNoOneJoin = computed(() => reason.value === 'NO_ONE_JOIN_THIS_SESSION')
 
 
 watchEffect(() => console.log(sessionInstance.value.endTime))
@@ -101,15 +140,25 @@ const bidPrice = ref('')
 const currentBid = ref(0)
 const setCurrentBid = async () => {
     const response = await contractStore.getHighestBid(sessionDetail.value.index)
-    console.log('response', response)
-    if (!response) return currentBid.value = sessionDetail.value.startingPrice
-    currentBid.value = response.fund.toString()
-    transactionURL.value = response['0']
+    if (response.reason) {
+        currentBid.value = sessionDetail.value.startingPrice // fallback to default
+        reason.value = response.reason
+    }
+    if (response.fund) {
+        currentBid.value = response.fund.toString()
+        transactionURL.value = response['0']
+    }
     return
 }
+
+watch(isNoOneJoin, newVal => {
+    if (newVal) message.value = 'No one has joined this session'
+})
+
 const handleBid = async () => {
     await contractStore.placeBid(sessionDetail.value.index, Number(bidPrice.value))
-    await contractStore.getHighestBid(sessionDetail.value.index)
+    const response = await contractStore.getHighestBid(sessionDetail.value.index)
+    console.log(response)
 }
 
 
@@ -127,6 +176,7 @@ watch([sessionInstance, listSessions], ([currentSession, currentList]) => {
     const recordFromContract = currentList.filter(session => match(session, currentSession))[0]
     const recordFromDB = currentSession
     sessionDetail.value = Object.assign(recordFromDB, recordFromContract)
+    ownerAddress.value = sessionDetail.value.address
 })
 
 watch(sessionDetail, () => setCurrentBid())

@@ -75,7 +75,7 @@ const firebaseStore = useFirebase()
 // const { listSession, listSessionPaginated, pagination } = storeToRefs(contractStore)
 const { listSessions, listSessionsPaginated, pagination } = storeToRefs(firebaseStore)
 const listProducts = ref([])
-
+const token = ref(0)
 const gridType = ref(GRID_TYPE.THREE_COL)
 const colSpan = computed(() => {
     if (gridType.value === GRID_TYPE.TWO_COL) return 12
@@ -112,20 +112,20 @@ const byId = (a, b) => {
     return 0
 }
 const byPrice = (a, b) => {
-    if (Number(a.startingPrice) > Number(b.startingPrice)) return 1
-    if (Number(a.startingPrice) < Number(b.startingPrice)) return -1
+    if (Number(a.startingPrice) > Number(b.startingPrice)) return -1
+    if (Number(a.startingPrice) < Number(b.startingPrice)) return 1
     return 0
 }
 const byTime = (a, b) => {
-    if (a.startingTime > b.startingTime) return 1
-    if (a.startingTime < b.startingTime) return -1
+    if (Number(a.startTime) > Number(b.startTime)) return -1
+    if (Number(a.startTime) < Number(b.startTime)) return 1
     return 0
 }
 
 watch(sortBy, newVal => {
-    if (newVal === SORT_BY.DEFAULT) listSessions.value.sort(byId)
-    if (newVal === SORT_BY.PRICE) listSessions.value.sort(byPrice)
-    if (newVal === SORT_BY.TIME) listSessions.value.sort(byTime)
+    if (newVal === SORT_BY.DEFAULT) listSessions.value.sort(byId) && token.value++
+    if (newVal === SORT_BY.PRICE) listSessions.value.sort(byPrice) && token.value++
+    if (newVal === SORT_BY.TIME) listSessions.value.sort(byTime) && token.value++
 
     pageNumber.value = 1
 }, { immediate: true, deep: true })
