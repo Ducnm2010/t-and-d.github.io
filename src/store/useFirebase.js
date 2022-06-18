@@ -27,14 +27,17 @@ const filterInvalidFields = (obj) => {
 export const useFirebase = defineStore('firebaseStore', () => {
     const sessionCollectionRef = collection(db, 'sessions')
 
+    const filterFunction = ref(val => val)
     const listSessions = ref([])
-    const listSessionsPaginated = computed(() => _array.chunk(listSessions.value, pagination.value.pageSize))
+    const listSessionsFiltered = computed(() => listSessions.value.filter(filterFunction.value))
+    const listSessionsPaginated = computed(() => _array.chunk(listSessionsFiltered.value, pagination.value.pageSize))
+
 
     const pagination = ref({
         pageNumber: 1,
         pageSize: 6,
-        totalPages: 0,
-        totalRecords: 0
+        totalPages: computed(() => Math.ceil(listSessionsFiltered.value.length / pagination.value.pageSize) || 0),
+        totalRecords: computed(() => listSessionsFiltered.value.length)
     })
     const sessionInstance = ref({
         isCanceled: false,
@@ -51,8 +54,8 @@ export const useFirebase = defineStore('firebaseStore', () => {
         const response = await getDocs(sessionCollectionRef)
         listSessions.value = response.docs.map(doc => ({ ...doc.data(), id: doc.id }))
         console.log('@fetchSessions', listSessions.value)
-        pagination.value.totalPages = Math.ceil(listSessions.value.length / pagination.value.pageSize)
-        pagination.value.totalRecords = listSessions.value.length
+        // pagination.value.totalPages = Math.ceil(listSessionsFiltered.value.length / pagination.value.pageSize)
+        // pagination.value.totalRecords = listSessionsFiltered.value.length
     }
 
     const fetchSessionDetail = async (id) => {
@@ -97,7 +100,9 @@ export const useFirebase = defineStore('firebaseStore', () => {
         }
     }
     return {
+        filterFunction,
         listSessions,
+        listSessionsFiltered,
         listSessionsPaginated,
         pagination,
         sessionInstance,

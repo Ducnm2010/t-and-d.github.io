@@ -56,7 +56,7 @@ onMounted(() => {
   --text-primary: #111827;
   --text-secondary: #757575;
   --primary-color: #2979FF;
-  
+
   --blue-color: #114672;
 }
 
@@ -100,7 +100,14 @@ body {
     border-bottom: none;
   }
 
-  h1.ant-typography {}
+  .ant-form-item-explain-error {
+    text-align: left;
+    font-size: 11px;
+  }
+
+  h1.ant-typography {
+    color: var(--text-primary)
+  }
 
   h2.ant-typography {
     color: var(--text-primary);

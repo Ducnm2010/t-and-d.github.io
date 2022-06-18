@@ -9,8 +9,8 @@
                 No result was found
             </div>
             <div class="product-grid-filter__settings">
-                <a-select v-model:value="sortBy" class="sort-button" :options="sortOptions">
-                </a-select>
+                <a-select v-model:value="filterBy" class="filter-button grid-select-button" :options="filterOptions" />
+                <a-select v-model:value="sortBy" class="sort-button grid-select-button" :options="sortOptions" />
                 <button class="grid-icon grid-2" :class="{ active: gridType === GRID_TYPE.TWO_COL }"
                     @click="gridType = GRID_TYPE.TWO_COL">
                     <span class="icon"></span>
@@ -55,6 +55,12 @@ const SORT_BY = {
     PRICE: 'PRICE'
 }
 
+const FILTER_BY = {
+    DEFAULT: 'DEFAULT',
+    AVAILABLE: 'AVAILABLE',
+    CLOSED: 'CLOSED'
+}
+
 const sortOptions = [
     {
         label: 'Sort by default',
@@ -70,10 +76,24 @@ const sortOptions = [
     }
 ]
 
+const filterOptions = [
+    {
+        label: 'All',
+        value: FILTER_BY.DEFAULT
+    },
+    {
+        label: 'Available Session',
+        value: FILTER_BY.AVAILABLE
+    },
+    {
+        label: 'Closed Session',
+        value: FILTER_BY.CLOSED
+    }
+]
+
 const contractStore = useContracts()
 const firebaseStore = useFirebase()
-// const { listSession, listSessionPaginated, pagination } = storeToRefs(contractStore)
-const { listSessions, listSessionsPaginated, pagination } = storeToRefs(firebaseStore)
+const { filterFunction, listSessions, listSessionsPaginated, pagination } = storeToRefs(firebaseStore)
 const listProducts = ref([])
 const token = ref(0)
 const gridType = ref(GRID_TYPE.THREE_COL)
@@ -84,6 +104,11 @@ const colSpan = computed(() => {
 const sortBy = ref({
     label: 'Sort By',
     value: SORT_BY.DEFAULT
+})
+
+const filterBy = ref({
+    label: 'Filter By',
+    value: FILTER_BY.DEFAULT
 })
 
 const totalRecords = computed(() => pagination.value.totalRecords || 0)
@@ -130,6 +155,12 @@ watch(sortBy, newVal => {
     pageNumber.value = 1
 }, { immediate: true, deep: true })
 
+watch(filterBy, newVal => {
+    if (newVal === FILTER_BY.DEFAULT) filterFunction.value = val => val
+    if (newVal === FILTER_BY.AVAILABLE) filterFunction.value = val => val.endTime >= (Date.now() / 1000)
+    if (newVal === FILTER_BY.CLOSED) filterFunction.value = val => val.endTime < (Date.now() / 1000)
+})
+
 watch([listSessionsPaginated, pageNumber], ([newList, newPage]) => {
     listProducts.value = newList[newPage - 1] ? newList[newPage - 1] : []
 }, { immediate: true, deep: true })
@@ -150,7 +181,7 @@ watch([listSessionsPaginated, pageNumber], ([newList, newPage]) => {
             display: flex;
             align-items: center;
 
-            .sort-button {
+            .grid-select-button {
                 width: 180px;
                 height: 40px;
                 margin-right: 20px;

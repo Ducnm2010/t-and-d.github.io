@@ -5,7 +5,10 @@
                 <a-row>
                     <a-col :span="12">
                         <div class="wrap-photo">
-                            <div v-wave class="photo" :style="{ 'background-image': `url(${sessionInstance.imgSrc})` }">
+                            <!-- <div v-wave class="photo" :style="{ 'background-image': `url(${sessionInstance.imgSrc})` }">
+                            </div> -->
+                            <div v-wave class="photo">
+                                <img :src="sessionInstance.imgSrc" alt="photos">
                             </div>
                         </div>
                     </a-col>
@@ -22,7 +25,10 @@
                                     <template #title>
                                         {{ ownerAddress }}
                                     </template>
-                                    Owner by <span class="ơwner highlight">{{ ownerAddressTrim }}</span>
+                                    Owner by
+                                    <span class="ơwner highlight">
+                                        {{ isOwner ? 'Me' : ownerAddressTrim }}
+                                    </span>
                                 </a-tooltip>
                             </a-typography-paragraph>
 
@@ -61,7 +67,8 @@
                             <template v-else-if="isActive">
                                 <div>
                                     <a-input v-model:value="bidPrice" size="large" class="bid-input"></a-input>
-                                    <a-button type="primary" style="width: 100%;" @click="handleBid">Place a bid
+                                    <a-button type="primary" style="width: 100%;" @click="handleBid">
+                                        Place a bid
                                     </a-button>
                                 </div>
                             </template>
@@ -69,10 +76,7 @@
                             <template v-else>
                                 <div v-if="isNoOneJoin">
                                     <a-typography-paragraph class="transaction">
-                                        Status:
-                                    </a-typography-paragraph>
-                                    <a-typography-paragraph class="transaction">
-                                        <span class="highlight">No one has joined this session</span>
+                                        Status: No one has joined this session
                                     </a-typography-paragraph>
                                 </div>
                                 <div v-else-if="!isNoOneJoin" class="transaction">
@@ -107,7 +111,7 @@ const route = useRoute()
 const firebaseStore = useFirebase()
 const contractStore = useContracts()
 const { sessionInstance } = storeToRefs(firebaseStore)
-const { listSessions } = storeToRefs(contractStore)
+const { listSessions, currentAccount } = storeToRefs(contractStore)
 
 const id = route.params.id
 
@@ -126,16 +130,17 @@ const ownerAddressTrim = computed(() => {
     return _first + '...' + _last
 })
 const isActive = computed(() => sessionDetail.value?.endTime >= (Date.now() / 1000) && sessionDetail.value?.startTime < (Date.now() / 1000))
+const isOwner = computed(() => {
+    console.log('currentAccount', currentAccount.value)
+    console.log('ownerAddress', ownerAddress.value)
+    return currentAccount.value == ownerAddress.value
+})
 const hasNotBegin = computed(() => sessionDetail.value?.startTime > (Date.now() / 1000))
 const hasEnded = computed(() => sessionDetail.value?.endTime < (Date.now() / 1000))
 const endTime = computed(() => dayjs.unix(sessionInstance.value.endTime).format('DD-MM-YYYY HH:mm'))
 const reason = ref('')
 const message = ref('')
 const isNoOneJoin = computed(() => reason.value === 'NO_ONE_JOIN_THIS_SESSION')
-
-
-watchEffect(() => console.log(sessionInstance.value.endTime))
-
 const bidPrice = ref('')
 const currentBid = ref(0)
 const setCurrentBid = async () => {
@@ -180,6 +185,11 @@ watch([sessionInstance, listSessions], ([currentSession, currentList]) => {
 })
 
 watch(sessionDetail, () => setCurrentBid())
+
+// watchEffect(() => console.log(sessionInstance.value.endTime))
+// watchEffect(() => console.log('ownerAddress', ownerAddress.value))
+// watchEffect(() => console.log('currentAccount', currentAccount.value))
+// watchEffect(() => console.log('isOwner', isOwner.value))
 </script>
 
 <style scoped lang="scss">
@@ -195,12 +205,18 @@ watch(sessionDetail, () => setCurrentBid())
         height: 100%;
 
         .photo {
+            position: relative;
             width: 100%;
             height: 100%;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
             border-radius: 12px;
+            overflow: hidden;
+
+            img {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
         }
 
     }

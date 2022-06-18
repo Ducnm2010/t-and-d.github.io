@@ -15,7 +15,7 @@ export const useContracts = defineStore('smartContractStore', () => {
     const balance = ref('')
     const showGuidance = ref(false)
     const listSessions = ref([])
-    const currentBid = ref('')
+    // const currentBid = ref('')
 
     const getEthereumContract = async () => {
         const provider = new ethers.providers.Web3Provider(ethereum);
@@ -34,12 +34,14 @@ export const useContracts = defineStore('smartContractStore', () => {
             const accounts = await ethereum.request({ method: 'eth_accounts' })
             if (accounts.length) {
                 currentAccount.value = accounts[0]
+                return true
             } else {
                 throw new Error('No account found!')
             }
         } catch (error) {
             message.error(`You haven't connected to your wallet`)
             console.log(error);
+            return false
         }
     }
 
@@ -135,6 +137,7 @@ export const useContracts = defineStore('smartContractStore', () => {
         createSession,
         // doBid,
         placeBid,
-        getHighestBid
+        getHighestBid,
+        isWalletConnected
     }
 })
