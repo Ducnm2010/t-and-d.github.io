@@ -17,6 +17,7 @@ import { useStateUI } from './store/useStateUI'
 import { useContracts } from './store/useContracts'
 import { useState } from './hooks'
 import FullScreenLoading from './components/FullScreenLoading.vue'
+import { storeToRefs } from 'pinia'
 
 console.log(process.env.NODE_ENV);
 
@@ -36,7 +37,7 @@ const redirectToMetaMaskExtension = () => {
 }
 
 const contractStore = useContracts()
-const showGuidance = computed(() => contractStore.showGuidance)
+const { showGuidance } = storeToRefs(contractStore)
 
 const { ethereum } = window;
 ethereum.on('accountsChanged', (accounts) => {
@@ -135,6 +136,12 @@ body {
     font-size: 12px;
     padding: 10px 36px;
   }
+
+
+  .ant-layout-header {
+    padding-left: 35px;
+    padding-right: 35px;
+  }
 }
 
 input:-webkit-autofill,
@@ -154,6 +161,11 @@ input:-webkit-autofill:active {
 .container {
   max-width: 1200px;
   margin: 0 auto;
+
+  @media (max-width: 1200px) {
+    padding-left: 35px;
+    padding-right: 35px;
+  }
 }
 
 .highlight {

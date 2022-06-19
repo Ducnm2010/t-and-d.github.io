@@ -11,7 +11,7 @@ import _array from 'lodash/array'
 const { ethereum } = window;
 
 export const useContracts = defineStore('smartContractStore', () => {
-    const currentAccount = ref(null)
+    const currentAccount = ref('')
     const balance = ref('')
     const showGuidance = ref(false)
     const listSessions = ref([])
@@ -22,7 +22,7 @@ export const useContracts = defineStore('smartContractStore', () => {
         const signer = provider.getSigner();
         const auctionContract = new ethers.Contract(contractAddressAuction, contractABIAuction, signer)
 
-        // console.log('auctionContract', auctionContract)
+        console.log('auctionContract', auctionContract)
         return {
             auctionContract, provider, signer
         }
@@ -34,6 +34,7 @@ export const useContracts = defineStore('smartContractStore', () => {
             const accounts = await ethereum.request({ method: 'eth_accounts' })
             if (accounts.length) {
                 currentAccount.value = accounts[0]
+                showGuidance.value = false
                 return true
             } else {
                 throw new Error('No account found!')
@@ -41,6 +42,7 @@ export const useContracts = defineStore('smartContractStore', () => {
         } catch (error) {
             message.error(`You haven't connected to your wallet`)
             console.log(error);
+            showGuidance.value = true
             return false
         }
     }
@@ -51,9 +53,11 @@ export const useContracts = defineStore('smartContractStore', () => {
             const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
             currentAccount.value = accounts[0]
             message.success('Your wallet is connected')
+            return true
         } catch (error) {
             console.log(error);
             showGuidance.value = true
+            return false
         }
     }
 
@@ -91,7 +95,6 @@ export const useContracts = defineStore('smartContractStore', () => {
         try {
             const { auctionContract } = await getEthereumContract()
             const response = await auctionContract.createSession(startTime, basePrice)
-            // console.log('response', response)
             message.success('Session is created!')
             return true
         } catch (error) {
@@ -114,8 +117,16 @@ export const useContracts = defineStore('smartContractStore', () => {
     const placeBid = async (id, bidPrice) => {
         try {
             const { auctionContract } = await getEthereumContract()
-            const response = await auctionContract.bid(id, bidPrice)
-            // console.log('response', response)
+            await auctionContract.bid(id, bidPrice)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const endSession = async (id) => {
+        try {
+            const { auctionContract } = await getEthereumContract()
+            await auctionContract.endSession(id)
         } catch (error) {
             console.log(error)
         }
@@ -128,16 +139,14 @@ export const useContracts = defineStore('smartContractStore', () => {
         currentAccount,
         balance,
         listSessions,
-        // listSessionPaginated,
-        // pagination,
         getEthereumContract,
         getAllSessions,
         connectWallet,
         getBalance,
         createSession,
-        // doBid,
         placeBid,
         getHighestBid,
-        isWalletConnected
+        isWalletConnected,
+        endSession
     }
 })

@@ -11,14 +11,16 @@
             <div class="product-grid-filter__settings">
                 <a-select v-model:value="filterBy" class="filter-button grid-select-button" :options="filterOptions" />
                 <a-select v-model:value="sortBy" class="sort-button grid-select-button" :options="sortOptions" />
-                <button class="grid-icon grid-2" :class="{ active: gridType === GRID_TYPE.TWO_COL }"
-                    @click="gridType = GRID_TYPE.TWO_COL">
-                    <span class="icon"></span>
-                </button>
-                <button class="grid-icon grid-3" :class="{ active: gridType === GRID_TYPE.THREE_COL }"
-                    @click="gridType = GRID_TYPE.THREE_COL">
-                    <span class="icon"></span>
-                </button>
+                <template v-if="showGridOptions">
+                    <button class="grid-icon grid-2" :class="{ active: gridType === GRID_TYPE.TWO_COL }"
+                        @click="gridType = GRID_TYPE.TWO_COL">
+                        <span class="icon"></span>
+                    </button>
+                    <button class="grid-icon grid-3" :class="{ active: gridType === GRID_TYPE.THREE_COL }"
+                        @click="gridType = GRID_TYPE.THREE_COL">
+                        <span class="icon"></span>
+                    </button>
+                </template>
             </div>
 
         </div>
@@ -26,7 +28,7 @@
             'grid-two': gridType === GRID_TYPE.TWO_COL,
             'grid-three': gridType === GRID_TYPE.THREE_COL
         }]">
-            <a-row :gutter="70">
+            <a-row :gutter="gutter">
                 <a-col v-for="(product, index) in listProducts" :key="index" :span="colSpan">
                     <card-product :item="product"></card-product>
                 </a-col>
@@ -43,6 +45,7 @@ import CardProduct from './CardProduct.vue';
 import { useContracts } from '../../store/useContracts'
 import { useFirebase } from '../../store/useFirebase';
 import { storeToRefs } from 'pinia';
+import { useWindowSize } from '../../hooks'
 
 const GRID_TYPE = {
     TWO_COL: 'TWO_COL',
@@ -96,10 +99,32 @@ const firebaseStore = useFirebase()
 const { filterFunction, listSessions, listSessionsPaginated, pagination } = storeToRefs(firebaseStore)
 const listProducts = ref([])
 const token = ref(0)
+
+const { height, width } = useWindowSize()
 const gridType = ref(GRID_TYPE.THREE_COL)
+const gutter = computed(() => {
+    if (width.value > 1000) {
+        return 70
+    } else if (width.value > 600) {
+        return 15
+    } else {
+        return 10
+    }
+})
 const colSpan = computed(() => {
-    if (gridType.value === GRID_TYPE.TWO_COL) return 12
-    if (gridType.value === GRID_TYPE.THREE_COL) return 8
+    if (width.value > 1000) {
+        if (gridType.value === GRID_TYPE.TWO_COL) return 12
+        if (gridType.value === GRID_TYPE.THREE_COL) return 8
+    }
+    if (width.value > 600) {
+        return 12
+    } else {
+        return 24
+    }
+})
+const showGridOptions = computed(() => {
+    if (width.value > 1000) return true
+    else return false
 })
 const sortBy = ref({
     label: 'Sort By',
@@ -159,7 +184,9 @@ watch(filterBy, newVal => {
     if (newVal === FILTER_BY.DEFAULT) filterFunction.value = val => val
     if (newVal === FILTER_BY.AVAILABLE) filterFunction.value = val => val.endTime >= (Date.now() / 1000)
     if (newVal === FILTER_BY.CLOSED) filterFunction.value = val => val.endTime < (Date.now() / 1000)
-})
+
+    pageNumber.value = 1
+}, { immediate: true, deep: true })
 
 watch([listSessionsPaginated, pageNumber], ([newList, newPage]) => {
     listProducts.value = newList[newPage - 1] ? newList[newPage - 1] : []
@@ -245,6 +272,11 @@ watch([listSessionsPaginated, pageNumber], ([newList, newPage]) => {
                     }
                 }
             }
+        }
+
+        @media (max-width: 600px) {
+            flex-direction: column;
+            gap: 1rem;
         }
     }
 

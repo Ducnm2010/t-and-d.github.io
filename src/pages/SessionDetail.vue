@@ -3,16 +3,14 @@
         <section class="session-detail">
             <div class="container">
                 <a-row>
-                    <a-col :span="12">
+                    <a-col :lg="12" :span="24">
                         <div class="wrap-photo">
-                            <!-- <div v-wave class="photo" :style="{ 'background-image': `url(${sessionInstance.imgSrc})` }">
-                            </div> -->
                             <div v-wave class="photo">
                                 <img :src="sessionInstance.imgSrc" alt="photos">
                             </div>
                         </div>
                     </a-col>
-                    <a-col :span="12">
+                    <a-col :lg="12" :span="24">
                         <div class="card-info">
                             <a-typography-title :level="2">
                                 {{ sessionInstance.name }}
@@ -35,17 +33,17 @@
                             <a-divider></a-divider>
 
                             <a-row>
-                                <a-col :span="8">
+                                <a-col :span="12">
                                     <div class="current-bid">
                                         <a-typography-paragraph class="label">Current Bid</a-typography-paragraph>
                                         <span class="highlight">
                                             <img class="icon" src="../assets/ethereum.svg" alt="ether">
-                                            {{ currentBid }}
+                                            {{ currentBidFormatted }}
                                             {{ currency }}
                                         </span>
                                     </div>
                                 </a-col>
-                                <a-col :span="16">
+                                <a-col :span="12">
                                     <div class="countdown">
                                         <a-typography-paragraph class="label">Auctions Ends In</a-typography-paragraph>
                                         <span class="highlight">
@@ -81,7 +79,8 @@
                                 </div>
                                 <div v-else-if="!isNoOneJoin" class="transaction">
                                     <a-typography-paragraph class="label">
-                                        Transaction URL
+                                        <!-- Transaction URL -->
+                                        The winner is:
                                     </a-typography-paragraph>
                                     <a-tooltip>
                                         <template #title>{{ transactionURL }}</template>
@@ -102,9 +101,11 @@
 <script setup>
 import { useFirebase } from '../store/useFirebase'
 import { useContracts } from '../store/useContracts'
-import { onMounted, watchEffect, watch, computed, ref } from 'vue'
+import { onMounted, watchEffect, watch, computed, ref, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia';
 import { useRoute } from 'vue-router'
+import { ethers } from 'ethers';
+import formatter from '../utils/formatter'
 import dayjs from 'dayjs'
 
 const route = useRoute()
@@ -130,19 +131,28 @@ const ownerAddressTrim = computed(() => {
     return _first + '...' + _last
 })
 const isActive = computed(() => sessionDetail.value?.endTime >= (Date.now() / 1000) && sessionDetail.value?.startTime < (Date.now() / 1000))
-const isOwner = computed(() => {
-    console.log('currentAccount', currentAccount.value)
-    console.log('ownerAddress', ownerAddress.value)
-    return currentAccount.value == ownerAddress.value
+// const isOwner = computed(() => ethers.utils.recoverAddress(currentAccount.value) === ethers.utils.recoverAddress(ownerAddress.value))
+
+const timeNow = ref(Date.now() / 1000)
+const interval = ref(null)
+onMounted(() => {
+    interval.value = setInterval(() => {
+        timeNow.value += 1
+    }, 1000)
 })
-const hasNotBegin = computed(() => sessionDetail.value?.startTime > (Date.now() / 1000))
-const hasEnded = computed(() => sessionDetail.value?.endTime < (Date.now() / 1000))
+onUnmounted(() => {
+    interval.value = null
+})
+const isOwner = computed(() => currentAccount.value === ownerAddress.value)
+const hasNotBegin = computed(() => sessionDetail.value?.startTime > timeNow.value)
+const hasEnded = computed(() => sessionDetail.value?.endTime < timeNow.value)
 const endTime = computed(() => dayjs.unix(sessionInstance.value.endTime).format('DD-MM-YYYY HH:mm'))
 const reason = ref('')
 const message = ref('')
 const isNoOneJoin = computed(() => reason.value === 'NO_ONE_JOIN_THIS_SESSION')
 const bidPrice = ref('')
 const currentBid = ref(0)
+const currentBidFormatted = computed(() => formatter.appendThousandSeparator(currentBid.value) || 0)
 const setCurrentBid = async () => {
     const response = await contractStore.getHighestBid(sessionDetail.value.index)
     if (response.reason) {
@@ -186,10 +196,17 @@ watch([sessionInstance, listSessions], ([currentSession, currentList]) => {
 
 watch(sessionDetail, () => setCurrentBid())
 
-// watchEffect(() => console.log(sessionInstance.value.endTime))
-// watchEffect(() => console.log('ownerAddress', ownerAddress.value))
-// watchEffect(() => console.log('currentAccount', currentAccount.value))
+watchEffect(() => console.log(sessionInstance.value))
+watchEffect(() => console.log('ownerAddress', typeof ownerAddress.value, ownerAddress.value))
+watchEffect(() => console.log('currentAccount', typeof currentAccount.value, currentAccount.value))
 // watchEffect(() => console.log('isOwner', isOwner.value))
+
+watch(hasEnded, (newVal, oldVal) => {
+    if (newVal) {
+        console.log(sessionDetail.value.index)
+        contractStore.endSession(sessionDetail.value.index)
+    }
+})
 </script>
 
 <style scoped lang="scss">
@@ -201,8 +218,12 @@ watch(sessionDetail, () => setCurrentBid())
     }
 
     .wrap-photo {
-        max-width: 540px;
-        height: 100%;
+        @media (min-width: 992px) {
+            max-width: 540px;
+            height: 100%;
+        }
+
+        margin-bottom: 30px;
 
         .photo {
             position: relative;
@@ -210,6 +231,7 @@ watch(sessionDetail, () => setCurrentBid())
             height: 100%;
             border-radius: 12px;
             overflow: hidden;
+            min-height: 300px;
 
             img {
                 position: absolute;

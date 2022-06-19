@@ -14,7 +14,11 @@ export const formatTimestampIntoUnits = (val) => {
 };
 
 class Formatter {
-
+    /** @param {String} val */
+    appendThousandSeparator(val) {
+        if (!val) return ''
+        return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
 }
 
 const formatter = new Formatter()

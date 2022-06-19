@@ -53,3 +53,6 @@ const handleSelect = (selected) => {
     else router.push(`/${selected.key}`)
 }
 </script>
+
+<style scoped lang="scss">
+</style>

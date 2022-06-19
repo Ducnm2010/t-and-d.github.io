@@ -36,13 +36,12 @@
 
 
               <div class="time-control">
-                <a-form-item label="Choose a date" name="date" class="time-control__item"
-                  :rules="[{ required: true }]">
+                <a-form-item label="Choose a date" name="date" class="time-control__item" :rules="[{ required: true }]">
                   <a-date-picker v-model:value="formSession.date" :allow-clear="true" format="DD-MM-YYYY" size="large">
                   </a-date-picker>
                 </a-form-item>
-                <a-form-item label="Time start" name="timeStart" style="text-align: right"
-                  class="time-control__item" :rules="[{ required: true }]">
+                <a-form-item label="Time start" name="timeStart" style="text-align: right" class="time-control__item"
+                  :rules="[{ required: true }]">
                   <a-time-picker v-model:value="formSession.timeStart" format="HH:mm" size="large"
                     :rules="[{ required: true }]"></a-time-picker>
                 </a-form-item>
@@ -103,13 +102,12 @@ const handleCreate = async () => {
     const _date = dayjs(formSession.date).format('YYYY-MM-DD')
     const _time = dayjs(formSession.timeStart).format('HH:mm')
     const dateTime = dayjs(`${_date} ${_time}`).unix()
-    console.log(dateTime, formSession.startingPrice)
-    console.log('listFiles', listFiles.value)
+    if (!listFiles.value.length) {
+      message.error('Upload photo is required')
+      throw new Error()
+    }
     const imgUrl = await firebaseStore.uploadImage(listFiles.value[0])
     if (!imgUrl) throw new Error()
-    console.log({
-      dateTime, startingPrice: formSession.startingPrice
-    })
     const response = await contractStore.createSession(dateTime, formSession.startingPrice)
     console.log('response', response)
     if (!response) throw new Error()
